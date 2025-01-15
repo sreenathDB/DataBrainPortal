@@ -27,7 +27,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { createCustomer, updateExistingCustomer } from '../../slices/customerSlice';
 import { ContactPersons, ProjectTypes } from '../../components/common/utils';
 import MyAlert from '../../components/common/Alert';
-import { deleteConnection } from '../../slices/connectionSlice';
+import { deleteConnection, setConnectionList } from '../../slices/connectionSlice';
 import { showAlert } from '../../slices/alertSlice';
 import { showPopup } from '../../slices/popoverSlice';
 import DeletePopover from '../../components/common/DeletePopover';
@@ -35,6 +35,7 @@ import PopperComponent from '../../components/common/popper';
 import AutoCompleteDataGrid from '../../components/common/AutoCompleteDataGrid';
 import ContactForm from '../../components/common/ContactForm';
 import { buildCustomerDTO, customerDTO } from '../../dto/customerDTO';
+import { fetchContacts } from '../../slices/contactSlice';
 
 
 // const userTypes = ["None", "Admin", "Consultant", "Customer"];
@@ -49,6 +50,8 @@ const CustomerForm = ({ onClose, isEditMode }) => {
   const dispatch = useDispatch();
   const { connectionList } = useSelector(state => state.connection)
   const { customer } = useSelector(state => state.customer)
+  const { contactList } = useSelector(state => state.contacts) 
+  console.log("Contact:", contactList);
 
   const [anchorEl, setAnchorEl] = useState(null);
   const [open, setOpen] = useState(false);
@@ -101,10 +104,12 @@ const CustomerForm = ({ onClose, isEditMode }) => {
     },
   });
 
+  
+
   useEffect(() => {
     if (isEditMode && customer && customer.length > 0) {
       console.log("Customer Data:", customer[0]);
-      const contactPerson = ContactPersons.find(cp => cp.id === customer[0].contactPerson);
+      const contactPerson = contactList.find(cp => cp.id === customer[0].contactPerson);
       console.log("Contact Person:", contactPerson);
       setFormData({
         ...customer[0],
@@ -114,6 +119,7 @@ const CustomerForm = ({ onClose, isEditMode }) => {
         ...customer[0],
         contactPerson: contactPerson || null,
       });
+      dispatch(setConnectionList(customer[0].connections)); 
     }
   }, [customer, isEditMode])
 
@@ -231,7 +237,7 @@ const CustomerForm = ({ onClose, isEditMode }) => {
 
   
 
-  const contactColumns = ["Contact Name"]; // Corrected typo
+  const contactColumns = ["Contact Name"]; 
   const contactRows = [
     { id: 1, contactName: 'John Doe' },
     { id: 2, contactName: 'Jane Smith' },
@@ -317,7 +323,7 @@ const CustomerForm = ({ onClose, isEditMode }) => {
                 <AutoCompleteDataGrid
                   label="Select Contact Person"
                   columns={contactColumns}
-                  rows={contactRows}
+                  rows={contactList.length > 0 ? contactList : []}
                   value={formik.values.contactPerson || null}
                   onChange={(event, value) => {
                     console.log("value", value);
@@ -545,7 +551,7 @@ const CustomerForm = ({ onClose, isEditMode }) => {
             </Grow>
           )}
         </Popper>
-        <ConnectionSettingGrid columns={columns}  />
+        <ConnectionSettingGrid columns={columns} isEditMode={isEditMode}  />
       </Box>
       <Box component="div" sx={{ height: "auto" }} padding={2} mb={2}>
         <Typography variant="h6" gutterBottom>Installation Credentials</Typography>

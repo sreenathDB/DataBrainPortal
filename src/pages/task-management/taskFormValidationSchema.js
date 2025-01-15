@@ -7,7 +7,9 @@ const taskFormValidationSchema = yup.object().shape({
     contactName: yup.object().required('Contact person is required'),
     // form: yup.string().required('Form is required'),
     projectName: yup.string().required('Project name is required'),
-    subject: yup.string().required('Subject is required'),   
+    project: yup.object().required('Project is required'),  
+    taskName: yup.string().required('Subject is required'),  
+
     // attachment: yup.mixed().nullable().required('Attachment is required'),
     status: yup.string().required('Status is required'),
     approvedHours: yup.number().required('Approved hours is required'),

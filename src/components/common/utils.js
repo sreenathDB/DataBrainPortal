@@ -28,7 +28,7 @@ export const Positions =[{id:1,value:"Manager"},{id:2,label:"Senior"},{id:3,labe
  
 // export const Languages = ["English", "Hebrew"];
 // export const LockStatus = [{ id: 0, status:"Unlocked"}, { id: 1, status:"Locked"}]; 
-  export const ProjectTypes = [{id:0,label:"All"},{id:2,label:"Implementation"},{id:3,label:"Support"},{id:3,label:"Development"},{id:3,label:"License"}]//["Implementation", "Support", "Development", "License", "All"];
+  export const ProjectTypes = [{id:0,label:"All"},{id:1,label:"Implementation"},{id:2,label:"Support"},{id:3,label:"Development"},{id:4,label:"License"}]//["Implementation", "Support", "Development", "License", "All"];
 
 
 export const ContactPersons = [

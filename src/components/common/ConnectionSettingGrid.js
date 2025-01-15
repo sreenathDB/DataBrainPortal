@@ -2,8 +2,14 @@ import React from 'react';
 import { DataGrid } from '@mui/x-data-grid';
 import { useSelector } from 'react-redux';
 
-const ConnectionSettingGrid = ({  columns }) => {
+const ConnectionSettingGrid = ({  columns, isEditMode,  }) => {
   const { connectionList} = useSelector((state) => state.connection);
+
+  console.log("Connection List:", connectionList);  
+
+    
+  
+  
 
   const rows = connectionList;
 
@@ -25,7 +31,7 @@ const ConnectionSettingGrid = ({  columns }) => {
     return (
         <div style={{ height: 'auto', width: '100%' }}>
             <DataGrid 
-              rows={rows} 
+              rows={ rows} 
               columns={columns } 
               getRowId={(row) => row.id}
             //   pageSize={5} 

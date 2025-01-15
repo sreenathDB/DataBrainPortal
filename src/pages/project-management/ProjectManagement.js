@@ -17,19 +17,21 @@ import EditContainer from '../../components/common/EditContainer';
 import ContactForm from '../customer-master/contact-details/ContactForm';
 import DialogBox from '../../components/common/DialogBox';
 import ProjectForm from './ProjectForm';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import MyAlert from '../../components/common/Alert';
-import { deleteProject } from '../../slices/projectSlice';
+import { deleteAProject, fetchAProject, fetchProjectList } from '../../slices/projectSlice';
 import { showAlert } from '../../slices/alertSlice';
 import { showPopup } from '../../slices/popoverSlice';
 import DeletePopover from '../../components/common/DeletePopover';
 import { ProjectTypes } from '../../components/common/utils';
+import { fetchCustomerList } from '../../slices/customerSlice';
 
 
 
 const ProjectManagement = () => {
 
-    const { projectList } = useSelector(state => state.project);
+    const { reloadList, projectList } = useSelector(state => state.project);
+    const dispatch = useDispatch();
 
     const [users, setUsers] = useState([]);
     const [formData, setFormData] = useState({
@@ -41,7 +43,7 @@ const ProjectManagement = () => {
     const [drawerOpen, setDrawerOpen] = useState(false);
     const [dialogOpen, setDialogOpen] = useState(false);
     const [isEditMode, setIsEditMode] = useState(false);
-    const [currentUserId, setCurrentUserId] = useState(null);
+    const [currentProjectId, setCurrentProjectId] = useState(null);
     const [drawerStyles, setDrawerStyles] = useState({});
     const [snackbar, setSnackbar] = useState({
         open: false,
@@ -53,13 +55,15 @@ const ProjectManagement = () => {
 
     // Fetch users from backend
     useEffect(() => {
-        const fetchUsers = async () => {
-            const response = await fetch('http://localhost:3001/users');
-            const data = await response.json();
-            setUsers(data);
-        };
-        fetchUsers();
-    }, []);
+        dispatch(fetchProjectList());
+        dispatch(fetchCustomerList());  
+    }, [reloadList]);
+
+    useEffect(() => {   
+        if (isEditMode && currentProjectId) {      
+            dispatch(fetchAProject({id: currentProjectId}));  
+        }
+    }, [isEditMode, currentProjectId]);    
 
     // Calculate Drawer Position and Height
     useEffect(() => {
@@ -90,7 +94,7 @@ const ProjectManagement = () => {
       };
 
     const handleDelete = (id) => {
-        dispatch(deleteProject(id));
+        dispatch(deleteAProject({id: id}));
         const alert ={
             open: true,
             message: "Project deleted successfully",
@@ -98,6 +102,12 @@ const ProjectManagement = () => {
         };
         dispatch(showAlert(alert)); 
         handlePopoverClose();   
+    };
+
+    const handleRowClick = (row) => {   
+        setIsEditMode(true);
+        setCurrentProjectId(row.id);
+        setDrawerOpen(true);
     };
 
     const handleCloseSnackbar = () => {
@@ -143,6 +153,9 @@ const ProjectManagement = () => {
                 <strong>Project Type</strong>
 
             ),
+            renderCell: (params) => {
+                return ProjectTypes[params.row.projectType].label;
+            },
             flex: 1,
             minWidth: 150
         },
@@ -164,6 +177,9 @@ const ProjectManagement = () => {
                 <strong>Status</strong>
 
             ),
+            renderCell: (params) => {
+                return params.row.status === 1 ? 'Active' : 'Inactive';
+            },
             flex: 1,
             minWidth: 150
         },
@@ -206,6 +222,9 @@ const ProjectManagement = () => {
                 <strong>Additional Hours</strong>
 
             ),
+            renderCell: (params) => {
+                return params.row.additionalHours ? params.row.additionalHours : 'N/A';
+            },
             flex: 1,
             minWidth: 150
         },
@@ -220,8 +239,8 @@ const ProjectManagement = () => {
             minWidth: 150
         },
         {
-            field: 'projectNameInEnglish',
-            headerName: 'Project Name In English',
+            field: 'projectNameHebrew', 
+            headerName: 'Project Name In Hebrew',
             renderHeader: () => (
                 <strong>Project Name In English</strong>
 
@@ -256,6 +275,9 @@ const ProjectManagement = () => {
                 <strong>Consumed Hours</strong>
 
             ),
+            renderCell: (params) => {
+                return params.row.consumedHours ? params.row.consumedHours : 'N/A';
+            },
             flex: 1,
             minWidth: 150
         },
@@ -266,6 +288,9 @@ const ProjectManagement = () => {
                 <strong>Balance Hours</strong>
 
             ),
+            renderCell: (params) => {
+                return params.row.balanceHours ? params.row.balanceHours : 'N/A';
+            },
             flex: 1,
             minWidth: 150
         },
@@ -299,6 +324,7 @@ const ProjectManagement = () => {
                     <DataGrid
                         rows={rows}
                         columns={columns}
+                        onRowClick={(rows) => handleRowClick(rows.row)} 
                         disableColumnMenu
                         disableRowSelectionOnClick
                         hideFooterPagination
@@ -316,7 +342,14 @@ const ProjectManagement = () => {
             </Card>
 
             <EditContainer open={drawerOpen} onClose={() => setDrawerOpen(false)}>
-                <ProjectForm onClose={() => setDrawerOpen(false)} />
+                <ProjectForm 
+                  onClose={() => {
+                    setDrawerOpen(false)
+                    setIsEditMode(false)    
+                    setCurrentProjectId(null)  
+                  }}
+                  isEditMode={isEditMode}   
+                  />
                 <DialogBox open={dialogOpen} handleCloseDialog={handleCloseDialog} />
             </EditContainer>
 

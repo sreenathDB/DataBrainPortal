@@ -23,6 +23,7 @@ import MyAlert from '../../components/common/Alert';
 import { showAlert } from '../../slices/alertSlice';
 import { showPopup } from '../../slices/popoverSlice';
 import DeletePopover from '../../components/common/DeletePopover';
+import { fetchContacts } from '../../slices/contactSlice';
 
 const ClientManagement = () => {
 
@@ -54,7 +55,12 @@ const ClientManagement = () => {
   // Fetch users from backend
   useEffect(() => {
     dispatch(fetchCustomerList());
+    dispatch(fetchContacts());
   }, [reloadList]); 
+
+  // useEffect(() => {
+  //   dispatch(fetchContacts())
+  // }, []);
 
   useEffect(() => { 
     if (isEditMode && currentUserId) {

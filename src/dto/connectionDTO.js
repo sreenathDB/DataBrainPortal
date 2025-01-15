@@ -15,12 +15,13 @@ export const connectionDTO = {
 
 export function buildConnectionDTO(connectionObj) {
     const connDTO = {...connectionDTO};
+    console.log("connectionObj:", connectionObj);   
     let id = 1
     connDTO.id = connectionObj?.id || id++;
     connDTO.connectionType = connectionObj?.connectionType;
     connDTO.vpnType = connectionObj?.vpnType;
     connDTO.address = connectionObj?.address;
-    connDTO.user = connectionObj?.user;
+    connDTO.user = connectionObj?.conUser;
     connDTO.password = connectionObj?.password;
     connDTO.comments = connectionObj?.comments;
     connDTO.status = connectionObj?.status;

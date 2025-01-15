@@ -1,64 +1,146 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
 import { buildProjectDTO, buildProjectListDTO, projectDTO } from '../dto/projectDTO';
-import { createNewProject, getProjectList } from '../components/common/apiCalls';
+import { createNewProject, deleteProject, getProjectList, getSingleProject, updateProject } from '../components/common/apiCalls';
+import { Api_Status } from '../components/common/utils';
 
 const initialState = {
     projectList: [],
     project: projectDTO,
-    status: 'idle',
+    status: Api_Status.Idle,
     error: null,
+    loading: false,
+    reloadList: Api_Status.Idle,
 };
 
 // Async thunk for fetching the project list
-export const fetchProjects = createAsyncThunk('projects/fetchProjects', async (projects) => {
-    const projectList = await getProjectList(projects); 
-    const response = await buildProjectListDTO(projectList);
-    return response;
+export const fetchProjectList = createAsyncThunk('projects/fetchProjectList', async () => {
+    const projects = await getProjectList();
+    return buildProjectListDTO(projects);
+}); 
+
+// Async thunk for creating a new project
+export const createProject = createAsyncThunk('projects/createProject', async (project) => {
+    const newProject = await createNewProject(project);
+    return buildProjectDTO(newProject);
 });
 
-// Async thunk for adding a new project
-export const addNewProject = createAsyncThunk('projects/addNewProject', async (newProject) => {
-    const project = await createNewProject(newProject);      
-    const response = await buildProjectDTO(project);     
-    return response;
+//Async thunk for updating a project    
+export const updateExistingProject = createAsyncThunk('projects/updateProject', async (project) => {
+    const updatedProject = await updateProject(project);    
+    return buildProjectListDTO(updatedProject); 
+});
+
+//Async thunk for fetching a project
+export const fetchAProject = createAsyncThunk('projects/fetchProject', async (obj) => {
+    const project = await getSingleProject(obj);
+    return buildProjectListDTO(project);
+});
+
+//Async thunk for deleting a project        
+export const deleteAProject = createAsyncThunk('projects/deleteProject', async (obj) => {
+    const project = await deleteProject(obj);
+    console.log("Project deleted:", project);   
+    return project;
+
 });
 
 const projectSlice = createSlice({
     name: 'projects',
     initialState,
     reducers: {
-        deleteProject: (state, action) => {
-            state.projectList = state.projectList.filter((project) => project.id !== action.payload);
-        }   
+        // deleteProject: (state, action) => {
+        //     state.projectList = state.projectList.filter((project) => project.id !== action.payload);
+        // }   
     },
-    extraReducers: (builder) => {
+    extraReducers: (builder) => {   
         builder
-            .addCase(fetchProjects.pending, (state) => {
-                state.status = 'loading';
+            .addCase(fetchProjectList.pending, (state) => {
+                state.loading = true;
+                state.error = null;
+                state.status = Api_Status.Loading;
             })
-            .addCase(fetchProjects.fulfilled, (state, action) => {
-                state.status = 'succeeded';
+            .addCase(fetchProjectList.fulfilled, (state, action) => {
+                state.loading = false;
                 state.projectList = action.payload;
+                state.status = Api_Status.Success;
             })
-            .addCase(fetchProjects.rejected, (state, action) => {
-                state.status = 'failed';
-                state.error = action.error.message;
+            .addCase(fetchProjectList.rejected, (state, action) => {
+                state.loading = false;
+                state.error = action.error.message || 'Failed to fetch project list';   
+                state.status = Api_Status.Failed;
             })
-            .addCase(addNewProject.pending, (state) => {
-                state.status = 'loading';
+            .addCase(createProject.pending, (state) => {
+                state.loading = true;
+                state.error = null;
+                state.status = Api_Status.Loading;
+                state.reloadList = Api_Status.Loading;
             })
-            .addCase(addNewProject.fulfilled, (state, action) => {
-                state.status = 'succeeded';
+            .addCase(createProject.fulfilled, (state, action) => {
+                state.loading = false;
                 state.project = action.payload;
-                state.projectList.push(action.payload);
+                state.status = Api_Status.Success;
+                state.reloadList = Api_Status.Success;
             })
-            .addCase(addNewProject.rejected, (state, action) => {
-                state.status = 'failed';
-                state.error = action.error.message;
+            .addCase(createProject.rejected, (state, action) => {
+                state.loading = false;
+                state.error = action.error.message || 'Failed to create project';   
+                state.status = Api_Status.Failed;
+                state.reloadList = Api_Status.Failed;
             })
-    },
+            .addCase(updateExistingProject.pending, (state) => {
+                state.loading = true;
+                state.error = null;
+                state.status = Api_Status.Loading;
+                state.reloadList = Api_Status.Loading;
+            })
+            .addCase(updateExistingProject.fulfilled, (state, action) => {
+                state.loading = false;
+                state.project = action.payload;
+                state.status = Api_Status.Success;
+                state.reloadList = Api_Status.Success;
+            })
+            .addCase(updateExistingProject.rejected, (state, action) => {
+                state.loading = false;
+                state.error = action.error.message || 'Failed to update project';   
+                state.status = Api_Status.Failed;
+                state.reloadList = Api_Status.Failed;
+            })
+            .addCase(fetchAProject.pending, (state) => {
+                state.loading = true;
+                state.error = null;
+                state.status = Api_Status.Loading;
+            })
+            .addCase(fetchAProject.fulfilled, (state, action) => {
+                state.loading = false;
+                state.project = action.payload;
+                state.status = Api_Status.Success;
+            })
+            .addCase(fetchAProject.rejected, (state, action) => {
+                state.loading = false;
+                state.error = action.error.message || 'Failed to fetch project';   
+                state.status = Api_Status.Failed;
+            })
+            .addCase(deleteAProject.pending, (state) => {
+                state.loading = true;
+                state.error = null;
+                state.status = Api_Status.Loading;
+                state.reloadList = Api_Status.Loading;
+            })
+            .addCase(deleteAProject.fulfilled, (state, action) => {
+                state.loading = false;
+                // state.project = action.payload;
+                state.status = Api_Status.Success;
+                state.reloadList = Api_Status.Success;
+            })
+            .addCase(deleteAProject.rejected, (state, action) => {
+                state.loading = false;
+                state.error = action.error.message || 'Failed to delete project';   
+                state.status = Api_Status.Failed;
+                state.reloadList = Api_Status.Failed;
+            })
+    }
 });
 
-export const { deleteProject } = projectSlice.actions;
+// export const { deleteProject } = projectSlice.actions;
 export default projectSlice.reducer;

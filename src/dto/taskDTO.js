@@ -1,12 +1,18 @@
+import { buildAttachmentListDTO } from "./attachmentDTO";
+
 export const taskDTO = {   
     id: 0,
     ticketNumber: null,
     customer: null,
-    module: null,
+    customerId: null,   
+    // module: null,
     contactName: null,
-    form: null,
+    contactId: null,
     projectName: null,
-    subject: null, // Only for customer
+    project: null,
+    projectId: null,
+    taskName: null, 
+    taskNameHebrew: null,
     attachment: null,
     status: null,
     approvedHours: null,
@@ -22,7 +28,8 @@ export const taskListDTO = {
     customer: null,
     contactName: null,
     projectName: null,
-    subject: null, // Only for customer
+    taskName: null, 
+    taskNameHebrew: null,
     attachment: null,
     status: null,
     approvedHours: null,
@@ -38,12 +45,15 @@ export const buildTaskDTO = (task) => {
     tDTO.id = id + 1;
     tDTO.ticketNumber = task?.ticketNumber;
     tDTO.customer = task?.customer;
-    tDTO.module = task?.module;
+    // tDTO.module = task?.module;
     tDTO.contactName = task?.contactName;
-    tDTO.form = task?.form;
+    // tDTO.form = task?.form;
     tDTO.projectName = task?.projectName;
-    tDTO.subject = task?.subject;
-    tDTO.attachment = task?.attachment?.name;
+    tDTO.project = task?.project;
+    tDTO.projectId = task?.projectId;
+    tDTO.taskName = task?.taskName;
+    tDTO.taskNameHebrew = task?.taskNameHebrew;
+    tDTO.attachment = task?.attachment?.name || buildAttachmentListDTO(task?.attachment);   
     tDTO.status = task?.status;
     tDTO.approvedHours = task?.approvedHours;
     tDTO.balanceHours = task?.balanceHours;
@@ -74,5 +84,5 @@ export const buildTaskListDTO = (task) => {
 };
 
 export const buildTaskListsDTO = (tasks) => {     
-    return tasks.map(task => buildTaskListDTO(task));
+    return tasks.map(task => buildTaskDTO(task));
 }   

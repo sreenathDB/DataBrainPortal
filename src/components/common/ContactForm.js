@@ -1,45 +1,69 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import { TextField, Button, Select, MenuItem, FormControl, InputLabel, FormControlLabel, Checkbox, Box, useTheme, Typography, Divider } from '@mui/material';
 import Grid from '@mui/material/Grid2';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { showAlert } from '../../slices/alertSlice';
-import { addNewContact } from '../../slices/contactSlice';
+import { addNewContact, updateExistingContact } from '../../slices/contactSlice';
 import { buildContactDTO, contactDTO } from '../../dto/contactDTO';
 import validationSchema from '../../pages/customer-master/contact-details/contactFormValidationSchema';
+import { LockStatus } from './utils';
 
 const ContactForm = (props) => {
 
     const theme = useTheme();
     const dispatch = useDispatch();
 
-    const [formData, setFormData] = React.useState({...contactDTO});    
+    const { contact } = useSelector((state) => state.contacts);
+
+    const [formData, setFormData] = React.useState({ ...contactDTO });
 
     const formik = useFormik({
         initialValues: formData,
         validationSchema: validationSchema,
         onSubmit: (values) => {
             console.log(values);
-            const contactDTO = buildContactDTO(values); 
+            const contactDTO = buildContactDTO(values);
             console.log("contactDTO: ", contactDTO);
-            dispatch(addNewContact(contactDTO));
-            const alert = {
-                open: true,
-                message: "Contact created successfully",
-                severity: "success",
-            };
-            dispatch(showAlert(alert));
-            props?.onClose();
+            if (props?.isEditMode && contact && contact.length > 0) {
+                dispatch(updateExistingContact(contactDTO));
+                const alert = {
+                    open: true,
+                    message: 'Contact Updated Successfully!',
+                    severity: 'success',
+                }
+                dispatch(showAlert(alert));
+                props?.onClose();
+            } else {
+                dispatch(addNewContact(contactDTO));
+                const alert = {
+                    open: true,
+                    message: "Contact created successfully",
+                    severity: "success",
+                };
+                dispatch(showAlert(alert));
+                props?.onClose();
+            }
         },
     });
+
+    useEffect(() => {
+        if (props?.isEditMode && contact && contact.length > 0) {
+            const tempdataOfLocked = contact[0].locked ? 1 : 0;
+            setFormData({ ...contact[0], locked: tempdataOfLocked });
+            formik.setValues({ ...contact[0], locked: tempdataOfLocked });
+        }
+    }
+        , [contact, props.isEditMode,]);
+
 
     return (
         <Box component="div" height="100vh" >
             <Box component="div" sx={{ ...theme.formControl.formHeaderOuterContainer }}>
                 <Box component="div" sx={{ ...theme.formControl.formHeaderContainer }}>
                     <Typography variant="h6" gutterBottom>
-                        {props?.isEditContact ? 'Edit Contact' : 'Create New Contact'}
+                        {props.isEditMode ? 'Edit Contact' : 'Create New Contact'}
                     </Typography>
                     <Box componet="div" sx={{ ...theme.formControl.formHeaderButtonContainer }}>
                         <Button
@@ -186,14 +210,21 @@ const ContactForm = (props) => {
                                 labelId="locked-label"
                                 id="locked"
                                 name="locked"
-                                value={formik.values.locked || ''}  
+                                value={formik.values.locked || ''}
                                 onChange={formik.handleChange}
                                 InputLabelProps={{
                                     shrink: true,
                                 }}
                             >
-                                <MenuItem value="locked">Locked</MenuItem>
-                                <MenuItem value="unlocked">Unlocked</MenuItem>
+                                {/* <MenuItem value="locked">Locked</MenuItem>
+                                <MenuItem value="unlocked">Unlocked</MenuItem> */}
+                                {
+                                    LockStatus.map((status, index) => {
+                                        return (
+                                            <MenuItem key={index} value={status.id}>{status.label}</MenuItem>
+                                        );
+                                    })
+                                }
                             </Select>
                         </FormControl>
                     </Grid>

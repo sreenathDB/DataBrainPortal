@@ -1,4 +1,4 @@
-import axios from 'axios';  
+import axios from 'axios';
 
 
 export let baseUrl = '';
@@ -20,14 +20,14 @@ await fetch('connection.json')
 //     })
 
 // }
-export const ApiQueryParams={
-filter: null,
-orderby: null,  
-pagesize: null, 
-page: null,
-select: null
+export const ApiQueryParams = {
+    filter: null,
+    orderby: null,
+    pagesize: null,
+    page: null,
+    select: null
 }
-const apiName={
+const apiName = {
     GetUsers: "GetUsers",
     InsertUser: "InsertUser",
     UpdateUser: "UpdateUser",
@@ -36,14 +36,22 @@ const apiName={
     InsertCustomer: "InsertCustomer",
     UpdateCustomer: "UpdateCustomer",
     DeleteCustomer: "DeleteCustomer",
-    GetContacts: "GetContacts", 
+    GetContacts: "GetContacts",
     InsertContact: "InsertContact",
     UpdateContact: "UpdateContact",
     DeleteContact: "DeleteContact",
     GetProjects: "GetProjects",
+    InsertProject: "InsertProject",
+    UpdateProject: "UpdateProject",
+    DeleteProject: "DeleteProject",
+    GetTasks: "GetTasks",
+    InsertTask: "InsertTask",
+    UpdateTask: "UpdateTask",
+    DeleteTask: "DeleteTask",
+    GetTimeSheets: "GetTimeSheets",
 }
-const ConstructApiCall = (ApiName, data = null,QueryParams=ApiQueryParams) => {
-    
+const ConstructApiCall = (ApiName, data = null, QueryParams = ApiQueryParams) => {
+
     // Construct query parameters
     let queryParams = new URLSearchParams();
 
@@ -53,7 +61,7 @@ const ConstructApiCall = (ApiName, data = null,QueryParams=ApiQueryParams) => {
     if (QueryParams.page) queryParams.append("page", QueryParams?.page);
     if (QueryParams.select) queryParams.append("select", QueryParams?.select);
 
-    const tempUrl = data ? `${baseUrl}/postdata/${ApiName}` : `${baseUrl}/getdata/${ApiName}`;   
+    const tempUrl = data ? `${baseUrl}/postdata/${ApiName}` : `${baseUrl}/getdata/${ApiName}`;
 
     const finalUrl = queryParams.toString() ? `${tempUrl}?${queryParams.toString()}` : `${tempUrl}`;
     console.log("finalUrl", finalUrl);
@@ -70,11 +78,11 @@ const ConstructApiCall = (ApiName, data = null,QueryParams=ApiQueryParams) => {
 const getDataFromResponse = (response) => {
     if (response.data) {
         const resultString = response.data[0].resObject[0].result;
-        console.log("Result String:", resultString);        
+        console.log("Result String:", resultString);
 
         const result = JSON.parse(resultString);
-        console.log("Result:", result); 
-        return result.data;  
+        console.log("Result:", result);
+        return result.data;
     }
     return null;
 };
@@ -83,11 +91,11 @@ const getDataFromResponse = (response) => {
 //user login
 export const userLogin = async (credentials) => {
     return credentials;
-}   
+}
 
 //Get user list
 export const getUserList = async (QueryParams) => {
-    const apiCallConfig = ConstructApiCall(apiName.GetUsers,null,QueryParams);
+    const apiCallConfig = ConstructApiCall(apiName.GetUsers, null, QueryParams);
     console.log("API Call Config:", apiCallConfig)
 
     try {
@@ -102,7 +110,7 @@ export const getUserList = async (QueryParams) => {
 
         const extractedData = getDataFromResponse(response);
         return extractedData;
-        console.log("Extracted Data:", extractedData);      
+        console.log("Extracted Data:", extractedData);
     } catch (error) {
         console.error("API call failed", error);
         return null;
@@ -111,7 +119,7 @@ export const getUserList = async (QueryParams) => {
 
 //get single user
 export const getSingleUser = async (obj) => {
-    const apiCallConfig = ConstructApiCall(apiName.GetUsers,obj);
+    const apiCallConfig = ConstructApiCall(apiName.GetUsers, obj);
     console.log("API Call Config:", apiCallConfig)
 
     try {
@@ -126,11 +134,11 @@ export const getSingleUser = async (obj) => {
     } catch (error) {
         console.error("API call failed", error);
         return null;
-    }   
+    }
 }
 //Create user
 export const createNewUser = async (userObj) => {
-    const apiCallConfig = ConstructApiCall(apiName.InsertUser,userObj);
+    const apiCallConfig = ConstructApiCall(apiName.InsertUser, userObj);
     console.log("API Call Config:", apiCallConfig)
 
 
@@ -151,7 +159,7 @@ export const createNewUser = async (userObj) => {
 
 //Update user
 export const updateUser = async (userObj) => {
-    const apiCallConfig = ConstructApiCall(apiName.UpdateUser,userObj);
+    const apiCallConfig = ConstructApiCall(apiName.UpdateUser, userObj);
     console.log("API Call Config:", apiCallConfig)
 
 
@@ -171,7 +179,7 @@ export const updateUser = async (userObj) => {
 }
 
 export const deleteUser = async (obj) => {
-    const apiCallConfig = ConstructApiCall(apiName.DeleteUser,obj);
+    const apiCallConfig = ConstructApiCall(apiName.DeleteUser, obj);
     console.log("API Call Config:", apiCallConfig)
 
 
@@ -193,7 +201,7 @@ export const deleteUser = async (obj) => {
 
 //Get customer list 
 export const getCustomerList = async (QueryParams) => {
-    const apiCallConfig = ConstructApiCall(apiName.GetCustomers,null,QueryParams);
+    const apiCallConfig = ConstructApiCall(apiName.GetCustomers, null, QueryParams);
     console.log("API Call Config:", apiCallConfig)
 
     try {
@@ -209,11 +217,11 @@ export const getCustomerList = async (QueryParams) => {
         console.error("API call failed", error);
         return null;
     }
-}; 
+};
 
 //Create customer
 export const createNewCustomer = async (customerObj) => {
-    const apiCallConfig = ConstructApiCall(apiName.InsertCustomer,customerObj);
+    const apiCallConfig = ConstructApiCall(apiName.InsertCustomer, customerObj);
     console.log("API Call Config:", apiCallConfig)
 
     try {
@@ -229,11 +237,11 @@ export const createNewCustomer = async (customerObj) => {
         console.error("API call failed", error);
         return null;
     }
-}; 
+};
 
 //Update customer
 export const updateCustomer = async (customerObj) => {
-    const apiCallConfig = ConstructApiCall(apiName.UpdateCustomer,customerObj);
+    const apiCallConfig = ConstructApiCall(apiName.UpdateCustomer, customerObj);
     console.log("API Call Config:", apiCallConfig)
 
     try {
@@ -253,7 +261,7 @@ export const updateCustomer = async (customerObj) => {
 
 //Get single customer   
 export const getSingleCustomer = async (obj) => {
-    const apiCallConfig = ConstructApiCall(apiName.GetCustomers,obj);
+    const apiCallConfig = ConstructApiCall(apiName.GetCustomers, obj);
     console.log("API Call Config:", apiCallConfig)
 
     try {
@@ -268,12 +276,12 @@ export const getSingleCustomer = async (obj) => {
     } catch (error) {
         console.error("API call failed", error);
         return null;
-    }   
+    }
 }
 
 //Delete customer
 export const deleteCustomer = async (customerId) => {
-    const apiCallConfig = ConstructApiCall(apiName.DeleteCustomer,customerId);
+    const apiCallConfig = ConstructApiCall(apiName.DeleteCustomer, customerId);
     console.log("API Call Config:", apiCallConfig)
 
     try {
@@ -290,7 +298,7 @@ export const deleteCustomer = async (customerId) => {
         return null;
     }
 }
- 
+
 
 //Get connection list
 export const getConnectionList = async (connectionList) => {
@@ -298,13 +306,13 @@ export const getConnectionList = async (connectionList) => {
 }
 
 //Create connection 
-export const createNewConnection = async (connectionObj) => {    
-    return connectionObj;   
-}  
+export const createNewConnection = async (connectionObj) => {
+    return connectionObj;
+}
 
 ///Get user list
 export const getContactList = async (QueryParams) => {
-    const apiCallConfig = ConstructApiCall(apiName.GetContacts,null,QueryParams);
+    const apiCallConfig = ConstructApiCall(apiName.GetContacts, null, QueryParams);
     console.log("API Call Config:", apiCallConfig)
 
     try {
@@ -319,16 +327,16 @@ export const getContactList = async (QueryParams) => {
 
         const extractedData = getDataFromResponse(response);
         return extractedData;
-        console.log("Extracted Data:", extractedData);      
+        console.log("Extracted Data:", extractedData);
     } catch (error) {
         console.error("API call failed", error);
         return null;
     }
-};     
+};
 
 //Create contact
 export const createNewContact = async (contactObj) => {
-    const apiCallConfig = ConstructApiCall(apiName.InsertContact,contactObj);
+    const apiCallConfig = ConstructApiCall(apiName.InsertContact, contactObj);
     console.log("API Call Config:", apiCallConfig)
 
     try {
@@ -344,11 +352,11 @@ export const createNewContact = async (contactObj) => {
         console.error("API call failed", error);
         return null;
     }
-}   
+}
 
 //Update contact
 export const updateContact = async (contactObj) => {
-    const apiCallConfig = ConstructApiCall(apiName.UpdateContact,contactObj);
+    const apiCallConfig = ConstructApiCall(apiName.UpdateContact, contactObj);
     console.log("API Call Config:", apiCallConfig)
 
     try {
@@ -364,11 +372,11 @@ export const updateContact = async (contactObj) => {
         console.error("API call failed", error);
         return null;
     }
-}  
+}
 
 //Get single contact    
 export const getSingleContact = async (obj) => {
-    const apiCallConfig = ConstructApiCall(apiName.GetContacts,obj);
+    const apiCallConfig = ConstructApiCall(apiName.GetContacts, obj);
     console.log("API Call Config:", apiCallConfig)
 
     try {
@@ -383,12 +391,12 @@ export const getSingleContact = async (obj) => {
     } catch (error) {
         console.error("API call failed", error);
         return null;
-    }   
-}   
+    }
+}
 
 //Delete contact
 export const deleteContact = async (obj) => {
-    const apiCallConfig = ConstructApiCall(apiName.DeleteContact,obj);
+    const apiCallConfig = ConstructApiCall(apiName.DeleteContact, obj);
     console.log("API Call Config:", apiCallConfig)
 
     try {
@@ -407,23 +415,210 @@ export const deleteContact = async (obj) => {
 }
 
 //Get project list
-export const getProjectList = async (projectList) => {
-    return projectList;
-}   
+export const getProjectList = async (QueryParams) => {
+
+    const apiCallConfig = ConstructApiCall(apiName.GetProjects, null, QueryParams);
+    console.log("API Call Config:", apiCallConfig)
+
+    try {
+        const response = await axios({
+            method: apiCallConfig.method,
+            url: apiCallConfig.url,
+            data: apiCallConfig.body,
+            headers: apiCallConfig.headers
+        });
+
+        return getDataFromResponse(response);
+    } catch (error) {
+        console.error("API call failed", error);
+        return null;
+    }
+}
 
 //Create project
 export const createNewProject = async (projectObj) => {
-    return projectObj;
-}   
+    const apiCallConfig = ConstructApiCall(apiName.InsertProject, projectObj);
+    console.log("API Call Config:", apiCallConfig)
 
-//Get task list 
-export const getTaskList = async (taskList) => {
-    return taskList;
-}   
+    try {
+        const response = await axios({
+            method: apiCallConfig.method,
+            url: apiCallConfig.url,
+            data: apiCallConfig.body,
+            headers: apiCallConfig.headers
+        });
 
-//Create task   
+        return getDataFromResponse(response);
+    } catch (error) {
+        console.error("API call failed", error);
+        return null;
+    }
+}
+
+//Update project    
+export const updateProject = async (projectObj) => {
+    const apiCallConfig = ConstructApiCall(apiName.UpdateProject, projectObj);
+    console.log("API Call Config:", apiCallConfig)
+
+    try {
+        const response = await axios({
+            method: apiCallConfig.method,
+            url: apiCallConfig.url,
+            data: apiCallConfig.body,
+            headers: apiCallConfig.headers
+        });
+
+        return getDataFromResponse(response);
+    } catch (error) {
+        console.error("API call failed", error);
+        return null;
+    }
+}
+
+//Get single project
+export const getSingleProject = async (obj) => {
+    const apiCallConfig = ConstructApiCall(apiName.GetProjects, obj);
+    console.log("API Call Config:", apiCallConfig)
+
+    try {
+        const response = await axios({
+            method: apiCallConfig.method,
+            url: apiCallConfig.url,
+            data: apiCallConfig.body,
+            headers: apiCallConfig.headers
+        });
+
+        return getDataFromResponse(response);
+    } catch (error) {
+        console.error("API call failed", error);
+        return null;
+    }
+}
+
+//Delete project
+export const deleteProject = async (projectId) => {
+    const apiCallConfig = ConstructApiCall(apiName.DeleteProject, projectId);
+    console.log("API Call Config:", apiCallConfig)
+
+    try {
+        const response = await axios({
+            method: apiCallConfig.method,
+            url: apiCallConfig.url,
+            data: apiCallConfig.body,
+            headers: apiCallConfig.headers
+        });
+
+        return response;
+    } catch (error) {
+        console.error("API call failed", error);
+        return null;
+    }
+}
+
+
+//Get task list     
+export const getTaskList = async (QueryParams) => {
+    const apiCallConfig = ConstructApiCall(apiName.GetTasks, null, QueryParams);
+    console.log("API Call Config:", apiCallConfig)
+
+    try {
+        const response = await axios({
+            method: apiCallConfig.method,
+            url: apiCallConfig.url,
+            data: apiCallConfig.body,
+            headers: apiCallConfig.headers
+        });
+
+        return getDataFromResponse(response);
+    } catch (error) {
+        console.error("API call failed", error);
+        return null;
+    }
+
+};
+
+//Create task
 export const createNewTask = async (taskObj) => {
-    return taskObj;
+    const apiCallConfig = ConstructApiCall(apiName.InsertTask, taskObj);
+    console.log("API Call Config:", apiCallConfig)
+
+    try {
+        const response = await axios({
+            method: apiCallConfig.method,
+            url: apiCallConfig.url,
+            data: apiCallConfig.body,
+            headers: apiCallConfig.headers
+        });
+
+        return getDataFromResponse(response);
+    } catch (error) {
+        console.error("API call failed", error);
+        return null;
+    }
+
+}
+
+//Update task   
+export const updateTask = async (taskObj) => {
+    const apiCallConfig = ConstructApiCall(apiName.UpdateTask, taskObj);
+    console.log("API Call Config:", apiCallConfig)
+
+    try {
+        const response = await axios({
+            method: apiCallConfig.method,
+            url: apiCallConfig.url,
+            data: apiCallConfig.body,
+            headers: apiCallConfig.headers
+        });
+
+        return getDataFromResponse(response);
+    } catch (error) {
+        console.error("API call failed", error);
+        return null;
+    }
+
+}   
+
+//Get single task   
+export const getSingleTask = async (obj) => {
+    const apiCallConfig = ConstructApiCall(apiName.GetTasks, obj);
+    console.log("API Call Config:", apiCallConfig)
+
+    try {
+        const response = await axios({
+            method: apiCallConfig.method,
+            url: apiCallConfig.url,
+            data: apiCallConfig.body,
+            headers: apiCallConfig.headers
+        });
+
+        return getDataFromResponse(response);
+    } catch (error) {
+        console.error("API call failed", error);
+        return null;
+    }
+
+}   
+
+//Delete task   
+export const deleteTask = async (taskId) => {
+    const apiCallConfig = ConstructApiCall(apiName.DeleteTask, taskId);
+    console.log("API Call Config:", apiCallConfig)
+
+    try {
+        const response = await axios({
+            method: apiCallConfig.method,
+            url: apiCallConfig.url,
+            data: apiCallConfig.body,
+            headers: apiCallConfig.headers
+        });
+
+        return response;
+    } catch (error) {
+        console.error("API call failed", error);
+        return null;
+    }
+
 }   
 
 //Get time sheet list   
@@ -439,10 +634,10 @@ export const createNewTimeSheet = async (timeSheetObj) => {
 //Get hours list    
 export const getHoursList = async (hoursList) => {
     return hoursList;
-}   
+}
 
 //Create hours  
 export const createNewHours = async (hoursObj) => {
     return hoursObj;
-}   
+}
 

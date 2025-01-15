@@ -12,6 +12,7 @@ import {
   Box,
   Popper,
 } from '@mui/material';
+import { ProjectTypes } from './utils';
 
 const rows = [
   { id: 1, customerName: 'John Doe', projectType: 'Web Development' },
@@ -23,6 +24,7 @@ const rows = [
 
 const AutoCompleteDataGrid = ({
   label,
+  track,
   columns,
   rows,
   value,
@@ -36,12 +38,22 @@ const AutoCompleteDataGrid = ({
 
   const [selectedContact, setSelectedContact] = useState(null);
   const [open, setOpen] = useState(false);
+  console.log('rows:', rows);
 
   const handleRowClick = (params) => {
     console.log('Row clicked:', params.row);
     onChange(null, params.row); // Update the selected contact
     setOpen(false)
   };
+
+  const columnKeyMap = {
+    "Contact Name": "contactName",
+    "Customer Name": "customerName",
+    "Project Type": "projectType",
+    "Project Name": "projectName",
+  };
+
+
 
   const CustomPaper = (props) => (
     <Paper
@@ -109,13 +121,13 @@ const AutoCompleteDataGrid = ({
       //    return values[0] || ''; 
       // }}
       getOptionLabel={getOptionLabel}
-      isOptionEqualToValue={(option, value) => option.id === value.id}  
-      
-     
+      isOptionEqualToValue={(option, value) => option.id === value.id}
+
+
       slots={{ popper: CustomPopper }}
-      open={open} 
-      onOpen={() => setOpen(true)} 
-      onClose={() => setOpen(false)} 
+      open={open}
+      onOpen={() => setOpen(true)}
+      onClose={() => setOpen(false)}
       renderOption={(props, option) => (
         <Box
           component="li"
@@ -133,7 +145,7 @@ const AutoCompleteDataGrid = ({
             <Table>
               <TableBody>
 
-                <TableRow key={`row-${option.id}`} 
+                <TableRow key={`row-${option.id}`}
                   sx={{
                     '&:hover': {
                       backgroundColor: 'lightgray', // Example hover background color
@@ -141,12 +153,30 @@ const AutoCompleteDataGrid = ({
                     },
                   }}
                 >
-                  {
+                  {/* {
                     Object.keys(option).filter(key => key !== 'id').map((key) => (
                         <TableCell component="th"   key={`cell-${option.id}-${key}`} sx={{  width: '50%'}}>
                           {option[key]}</TableCell>
                     ))
-                  }
+                  } */}
+                  {columns.map((column) => {
+                    const dataKey = columnKeyMap[column]; // Map column name to data key
+                    return (
+                      <TableCell
+                      key={`cell-${option.id}-${column}`}
+                      sx={{ width: `${100 / columns.length}%` }}
+                    >
+                      
+                      {
+                        
+                        track === 'Project'
+                          ? ProjectTypes[option[dataKey]]?.label || option[dataKey]
+                          : option[dataKey] || ''
+                      }
+                    </TableCell>
+                    
+                    );
+                  })}
                 </TableRow>
               </TableBody>
             </Table>
@@ -157,7 +187,7 @@ const AutoCompleteDataGrid = ({
         <TextField {...params} label={label} error={error} helperText={helperText} disabled={disabled || false} />
       )}
       disabled={disabled || false}
-      
+
     />
   );
 };

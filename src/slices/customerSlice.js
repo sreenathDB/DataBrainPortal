@@ -16,7 +16,8 @@ const initialState = {
 export const createCustomer = createAsyncThunk('customer/createCustomer', async (customerObj) => {
     console.log("Creating Customer:", customerObj);
     // const cDTO =  buildCustomerDTO(customerObj, connections);
-    const response = await createNewCustomer(customerObj);  
+    const customer = await createNewCustomer(customerObj);
+    const response = await buildCustomerListDTO(customer);    
    
     console.log("Processed Customer Response:", response);
     return response;
@@ -82,7 +83,7 @@ const customerSlice = createSlice({
                 state.status = Api_Status.Succeeded;
                 state.reloadList = Api_Status.Succeeded;
                 state.customer = action.payload;
-                state.customerList.push(action.payload);
+                // state.customerList.push(action.payload);
                 console.log("Updated state.customer:", state.customer);
                 console.log("Updated state.customerList:", state.customerList);
             })

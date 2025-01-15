@@ -65,7 +65,7 @@ export function buildCustomerDTO(customer, connections) {
 export function buildCustomerListDTO(customers) {
     return customers.map(customer => {
         // buildCustomerDTO(customer));
-        const cuLDTO = {...customerListDTO};
+        const cuLDTO = {...customerDTO};
         cuLDTO.id = customer?.id;
         cuLDTO.customerName = customer?.customerName;
         cuLDTO.contactPerson = customer?.contactPerson;
@@ -79,7 +79,9 @@ export function buildCustomerListDTO(customers) {
         cuLDTO.sapCode = customer?.sapCode;
         cuLDTO.controlCenterUser = customer?.controlCenterUser;
         cuLDTO.controlCenterPass = customer?.controlCenterPass; 
-
+        cuLDTO.connections = customer?.Connections ? buildConnectionDTOList(customer?.Connections) : null;
+        console.log("connections", customer?.Connections);
+        console.log("cuLDTO", cuLDTO);  
         return cuLDTO;
     });
 };

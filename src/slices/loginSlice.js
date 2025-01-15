@@ -6,7 +6,7 @@ import { userLogin } from '../components/common/apiCalls';
 
 // Initial state for login
 const initialState = {
-    user: userDTO,
+    user: {...userDTO, id: 1},
     loading: false,
     error: null,
     status: Api_Status.Idle,

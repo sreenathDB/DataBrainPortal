@@ -24,7 +24,10 @@ const connectionSlice = createSlice({
     reducers: {
         deleteConnection: (state, action) => {
             state.connectionList = state.connectionList.filter((connection) => connection.id !== action.payload);
-        }   
+        },
+        setConnectionList: (state, action) => { 
+            state.connectionList = action.payload;
+        }     
     },
     extraReducers: (builder) => {
         builder
@@ -51,5 +54,5 @@ const connectionSlice = createSlice({
 
 });
 
-export const { deleteConnection } = connectionSlice.actions;    
+export const { deleteConnection, setConnectionList } = connectionSlice.actions;    
 export default connectionSlice.reducer;

@@ -29,32 +29,19 @@ import { createTask } from '../../slices/taskSlice';
 import { showAlert } from '../../slices/alertSlice';
 import ChatDrawer from '../../components/common/ChatDrawer';
 import ChatIcon from '@mui/icons-material/Chat';
+import { buildTaskDTO, taskDTO } from '../../dto/taskDTO';
 
 
 
-const TaskForm = ({ user, show, handleClose, handleOpenDialog, onClose }) => {
+const TaskForm = ({ show, handleClose, handleOpenDialog, onClose, isEditMode }) => {
   const dispatch = useDispatch();
-  const [editedUser, setEditedUser] = useState(user)
-  const [isEditMode, setIsEditMode] = useState(false);
+  const  {projectList} = useSelector(state => state.project);   
+  // const [editedUser, setEditedUser] = useState(user)
+  // const [isEditMode, setIsEditMode] = useState(false);
   const [isEditContact, setIsEditContact] = useState(false);
   const [anchorEl, setAnchorEl] = useState(null);
   const [open, setOpen] = useState(false);
-  const [formData, setFormData] = useState({
-    ticketNumber: null,
-    customer: null,
-    // module: null,
-    contactName: null,
-    // form: null,
-    projectName: null,
-    subject: null, // Only for customer
-    attachment: null,
-    status: null,
-    approvedHours: null,
-    balanceHours: null,
-    priority: null,
-    detailDescription: null,
-    user: null,
-  });
+  const [formData, setFormData] = useState({...taskDTO});
   const [chatDrawerOpen, setChatDrawerOpen] = useState(false);
 
 
@@ -65,7 +52,9 @@ const TaskForm = ({ user, show, handleClose, handleOpenDialog, onClose }) => {
     validationSchema: taskFormValidationSchema,
     onSubmit: (values) => {
       console.log(values);
-      dispatch(createTask(values));
+      const taskObj = buildTaskDTO(values);
+      console.log("Task Object", taskObj);  
+      // dispatch(createTask(taskObj));
       const alert = {
         open: true,
         message: 'Task Created Successfully',
@@ -96,6 +85,7 @@ const TaskForm = ({ user, show, handleClose, handleOpenDialog, onClose }) => {
   };
 
   const autoCompleteDataGridColumns = ["Customer Name", "Project Type"];
+  const projectColumns = ["Project Name", "Project Type"];
   const autoCompleteDataGridRows = [
     { id: 1, customerName: 'John Doe', projectType: 'Web Development' },
     { id: 2, customerName: 'Jane Smith', projectType: 'Mobile App' },
@@ -301,7 +291,7 @@ const TaskForm = ({ user, show, handleClose, handleOpenDialog, onClose }) => {
             </TextField>
           </Grid> */}
           <Grid item size={{ xs: 12, md: 6 }}>
-            <TextField
+            {/* <TextField
               fullWidth
               select
               id="projectName"
@@ -320,19 +310,45 @@ const TaskForm = ({ user, show, handleClose, handleOpenDialog, onClose }) => {
                   </MenuItem>
                 ))
               }
-            </TextField>
+            </TextField> */}
+            <AutoCompleteDataGrid
+              track="Project"
+              label="Select Projects"
+              columns={projectColumns}
+              rows={projectList.length > 0 ? projectList : []}  
+              value={formik.values.project || ''}
+              onChange={(event, value) => {
+                formik.setFieldValue('project', value);
+              }}
+              getOptionLabel={(option) => option?.label || option?.projectName || ''}
+              onBlur={() => formik.setFieldTouched('project', true)}
+              error={formik.touched.project && Boolean(formik.errors.project)}
+              helperText={formik.touched.project && formik.errors.project}
+            />
 
           </Grid>
           <Grid item size={{ xs: 12, md: 6 }}>
             <TextField
               fullWidth
-              id="subject"
-              name="subject"
-              label="Subject"
-              value={formik.values.subject}
+              id="taskName" 
+              name="taskName"
+              label="Task"
+              value={formik.values.taskName}
               onChange={formik.handleChange}
-              error={formik.touched.subject && Boolean(formik.errors.subject)}
-              helperText={formik.touched.subject && formik.errors.subject}
+              error={formik.touched.taskName && Boolean(formik.errors.taskName)}
+              helperText={formik.touched.taskName && formik.errors.taskName}
+            />
+          </Grid>
+          <Grid item size={{ xs: 12, md: 6 }}>
+            <TextField
+              fullWidth
+              id="taskNameHebrew" 
+              name="taskNameHebrew"
+              label="Task Name In Hebrew"
+              value={formik.values.taskNameHebrew}
+              onChange={formik.handleChange}
+              // error={formik.touched.taskNameHebrew && Boolean(formik.errors.taskNameHebrew)}
+              // helperText={formik.touched.taskNameHebrew && formik.errors.taskNameHebrew}
             />
           </Grid>
           {/* <Grid item size={{ xs: 12, md: 6 }}>

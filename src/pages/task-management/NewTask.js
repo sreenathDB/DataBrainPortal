@@ -19,14 +19,15 @@ import { userTypeObj } from '../../components/common/utils';
 import EditContainer from '../../components/common/EditContainer';
 import TaskForm from './TaskForm';    
 import MyAlert from '../../components/common/Alert';
-import { deleteTask } from '../../slices/taskSlice';
+import { deleteATask, getAllTasks, getATask } from '../../slices/taskSlice';
 import { showAlert } from '../../slices/alertSlice';
 import { showPopup } from '../../slices/popoverSlice';
 import DeletePopover from '../../components/common/DeletePopover';
+import { fetchProjectList } from '../../slices/projectSlice';
 const NewTask = () => {
 
   const dispatch = useDispatch();
-  const { taskList } = useSelector((state) => state.task);
+  const { taskList, reloadList } = useSelector((state) => state.task);
   console.log("Task List:", taskList);
   const [users, setUsers] = useState([]);
   const [formData, setFormData] = useState({
@@ -38,7 +39,7 @@ const NewTask = () => {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
-  const [currentUserId, setCurrentUserId] = useState(null);
+  const [currentTaskId, setCurrentTaskId] = useState(null);
   const [drawerStyles, setDrawerStyles] = useState({});
   const [snackbar, setSnackbar] = useState({
     open: false,
@@ -49,12 +50,17 @@ const NewTask = () => {
 
   const dataGridRef = useRef();
 
-  // Fetch users from backend
-  // useEffect(() => {
-  //   if (user) {
-  //   dispatch(fetchUserList());
-  //   }
-  // }, [userList]);
+  //fetch all tasks
+  useEffect(() => { 
+    dispatch(getAllTasks());
+    dispatch(fetchProjectList())
+  }, [reloadList]);
+
+  useEffect(() => { 
+    if (isEditMode && currentTaskId) {
+      dispatch(getATask({ id: currentTaskId }));  
+    }
+  }, [isEditMode, currentTaskId]);
 
   // Calculate Drawer Position and Height
   useEffect(() => {
@@ -85,7 +91,7 @@ const NewTask = () => {
   };
 
   const handleDelete = (id) => {
-    dispatch(deleteTask(id));
+    dispatch(deleteATask({id: id}));
     const alert ={
       open: true,
       message: "Task deleted successfully",
@@ -97,6 +103,12 @@ const NewTask = () => {
 
   const handleCloseSnackbar = () => {
     setSnackbar((prev) => ({ ...prev, open: false }));
+  };
+
+  const handleRowClick = (row) => { 
+    setIsEditMode(true);
+    setCurrentTaskId(row.id);
+    setDrawerOpen(true);
   };
 
   // const columns = [
@@ -464,6 +476,7 @@ const NewTask = () => {
               <DataGrid
                 rows={taskList}
                 columns={taskList.length > 0 ? generateColumnsFromData(taskList) : columns} 
+                onRowClick={(rows) => handleRowClick(rows.row)} 
                 disableColumnMenu
                 disableRowSelectionOnClick
                 hideFooterPagination
@@ -480,7 +493,15 @@ const NewTask = () => {
         </Card>
 
         <EditContainer open={drawerOpen} onClose={() => setDrawerOpen(false)}>
-          <TaskForm onClose={() => setDrawerOpen(false)} handleOpenDialog={handleOpenDialog} />
+          <TaskForm 
+            onClose={() => {
+              setDrawerOpen(false)
+              setIsEditMode(false); 
+              setCurrentTaskId(null);
+            }} 
+            handleOpenDialog={handleOpenDialog} 
+            isEditMode={isEditMode}
+          />
         </EditContainer>
 
 

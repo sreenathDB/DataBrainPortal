@@ -1,6 +1,6 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { buildContactDTO, buildContactListDTO, contactDTO } from '../dto/contactDTO';
-import { createNewContact, getContactList, getSingleContact, updateContact } from '../components/common/apiCalls';
+import { createNewContact, deleteContact, getContactList, getSingleContact, updateContact } from '../components/common/apiCalls';
 import { Api_Status } from '../components/common/utils';
 
 const initialState = {
@@ -42,6 +42,7 @@ export const fetchSingleContact = createAsyncThunk('contacts/fetchSingleContact'
 })
 
 export const deleteAContact = createAsyncThunk('contacts/deleteAContact', async (contactObj) => { 
+    console.log("contactObj: ", contactObj);        
     const contact = await deleteContact(contactObj);
     console.log("contact: ", contact);
     return contact;
@@ -52,9 +53,9 @@ const contactSlice = createSlice({
     name: 'contacts',
     initialState,
     reducers: {
-        deleteContact: (state, action) => {
-            state.contactList = state.contactList.filter((contact) => contact.id !== action.payload);
-        }   
+        // deleteContact: (state, action) => {
+        //     state.contactList = state.contactList.filter((contact) => contact.id !== action.payload);
+        // }   
     },
     extraReducers: (builder) => {
         builder
@@ -153,6 +154,5 @@ const contactSlice = createSlice({
     }
 });
 
-export const { deleteContact } = contactSlice.actions;
 
 export default contactSlice.reducer;

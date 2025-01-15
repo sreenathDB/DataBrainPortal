@@ -18,8 +18,7 @@ const validationSchema = Yup.object({
   accessPortal: Yup.boolean(),
   sendEmail: Yup.boolean(), 
   locked: Yup.string()
-    .required('Lock status is required')
-    .oneOf(['locked', 'unlocked'], 'Invalid lock status'),
+    .required('Lock status is required'),
   status: Yup.boolean().nullable(),
   isPrimary: Yup.boolean().nullable(),
   createdAt: Yup.date().nullable(),

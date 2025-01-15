@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Box, Typography, TextField, Button, MenuItem, Select, FormControl, InputLabel, FormControlLabel, Checkbox, Divider, useTheme, IconButton, Stack, Switch } from '@mui/material'
 import { Formik, useFormik } from 'formik';
 import Grid from '@mui/material/Grid2';
@@ -7,7 +7,7 @@ import contactFormValidationSchema from '../customer-master/contact-details/cont
 import AutoCompleteDataGrid from '../../components/common/AutoCompleteDataGrid';
 import projectFormValidationSchema from './projectFormValidationSchema';
 import { useDispatch, useSelector } from 'react-redux';
-import { addNewProject } from '../../slices/projectSlice';
+import { createProject, updateExistingProject } from '../../slices/projectSlice';
 import { ProjectMethod, ProjectTypes, Status } from '../../components/common/utils';
 import { Search } from '@mui/icons-material';
 import FormatListBulletedIcon from '@mui/icons-material/FormatListBulleted';
@@ -15,29 +15,21 @@ import PopperComponent from '../../components/common/popper';
 import ContactForm from '../../components/common/ContactForm';
 import HourForm from './HourForm';
 import { showAlert } from '../../slices/alertSlice';
+import { buildProjectDTO, projectDTO } from '../../dto/projectDTO';
 
-const ProjectForm = ({ contact, show, handleClose, handleOpenDialog, onClose }) => {
+const ProjectForm = ({ onClose, isEditMode }) => {
 
   const dispatch = useDispatch();
   const { hours } = useSelector((state) => state.hours);
+  const { project } = useSelector((state) => state.project);
+  const { customerList } = useSelector((state) => state.customer);
+
+  console.log("Customer List:", customerList);
 
   const theme = useTheme();
 
-  const [formData, setFormData] = useState({
-    projectType: '',
-    fromDate: '',
-    status: false,
-    toDate: '',
-    customer: null,
-    additionalHours: '',
-    projectName: '',
-    projectMethod: '',
-    projectNameInEnglish: '',
-    budget: '',
-    consumedHours: '',
-    balanceHours: '',
-  });
-  const [isEditMode, setIsEditMode] = useState(false);
+  const [formData, setFormData] = useState({ ...projectDTO });
+  //const [isEditMode, setIsEditMode] = useState(false);
   const [anchorEl, setAnchorEl] = useState(null);
   const [open, setOpen] = useState(false);
   const [isEditContact, setIsEditContact] = useState(false);
@@ -48,16 +40,45 @@ const ProjectForm = ({ contact, show, handleClose, handleOpenDialog, onClose }) 
     validationSchema: projectFormValidationSchema,
     onSubmit: (values) => {
       console.log(values);
-      dispatch(addNewProject(values));
-      const alert = {
-        open: true,
-        message: "Project added successfully",
-        severity: "success",
-      };
-      dispatch(showAlert(alert));
-      onClose();
+      const projectObj = buildProjectDTO(values);
+      console.log("Project Object:", projectObj);
+      if (isEditMode && project.length > 0) {
+        projectObj.id = project[0].id;
+        dispatch(updateExistingProject(projectObj));
+        const alert = {
+          open: true,
+          message: "Project updated successfully",
+          severity: "success",
+        };
+        dispatch(showAlert(alert));
+        onClose();
+      } else {
+        dispatch(createProject(projectObj));
+        const alert = {
+          open: true,
+          message: "Project added successfully",
+          severity: "success",
+        };
+        dispatch(showAlert(alert));
+        onClose();
+      }
     },
   });
+
+  console.log("Formik  errors:", formik.errors);
+
+  useEffect(() => {
+    if (isEditMode && project.length > 0) {
+      console.log("Project:", project);
+      const tempCustomer = customerList.find((customer) => customer.id === project[0].customerId);
+      console.log("Temp Customer:", tempCustomer);
+      setFormData(project[0]);
+      formik.setValues({
+        ...project[0],
+        customer: tempCustomer || null,
+      });
+    }
+  }, [project, isEditMode]);
 
 
   const handleClick = (event) => {
@@ -70,7 +91,7 @@ const ProjectForm = ({ contact, show, handleClose, handleOpenDialog, onClose }) 
     setOpen(false);
   };
 
-  const autoCompleteDataGridColumns = ["Customer Name", "Project Type"];
+  const autoCompleteDataGridColumns = ["Customer Name"];
   const autoCompleteDataGridRows = [
     { id: 1, customerName: 'John Doe', projectType: 'Web Development' },
     { id: 2, customerName: 'Jane Smith', projectType: 'Mobile App' },
@@ -184,16 +205,18 @@ const ProjectForm = ({ contact, show, handleClose, handleOpenDialog, onClose }) 
             <AutoCompleteDataGrid
               label="Select Customer"
               columns={autoCompleteDataGridColumns}
-              rows={autoCompleteDataGridRows}
-              value={formik.values.customer || ''}
+              rows={customerList.length > 0 ? customerList : []}
+              value={formik.values.customer || null}
               onChange={(event, value) => {
                 console.log("Value:", value);
                 formik.setFieldValue('customer', value);
               }}
+              getOptionLabel={(option) => option.customerName}
               onBlur={() => formik.setFieldTouched('customer', true)}
               error={formik.touched.customer && Boolean(formik.errors.customer)}
               helperText={formik.touched.customer && formik.errors.customer}
             />
+
           </Grid>
           <Grid size={{ xs: 12, md: 6 }}>
             <Grid container spacing={1} justifyContent="center" alignItems="center">
@@ -206,8 +229,8 @@ const ProjectForm = ({ contact, show, handleClose, handleOpenDialog, onClose }) 
                   value={formik.values.additionalHours || hours.hours}
                   onChange={formik.handleChange}
                   onBlur={formik.handleBlur}
-                  error={formik.touched.additionalHours && Boolean(formik.errors.additionalHours)}
-                  helperText={formik.touched.additionalHours && formik.errors.additionalHours}
+                  // error={formik.touched.additionalHours && Boolean(formik.errors.additionalHours)}
+                  // helperText={formik.touched.additionalHours && formik.errors.additionalHours}
                   InputLabelProps={{ shrink: true }}
                   disabled
                 />
@@ -262,13 +285,13 @@ const ProjectForm = ({ contact, show, handleClose, handleOpenDialog, onClose }) 
           <Grid size={{ xs: 12, md: 6 }}>
             <TextField
               fullWidth
-              label="Project Name in English"
-              name="projectNameInEnglish"
-              value={formik.values.projectNameInEnglish}
+              label="Project Name in Hebrew"
+              name="projectNameHebrew"
+              value={formik.values.projectNameHebrew}
               onChange={formik.handleChange}
               onBlur={formik.handleBlur}
-              error={formik.touched.projectNameInEnglish && Boolean(formik.errors.projectNameInEnglish)}
-              helperText={formik.touched.projectNameInEnglish && formik.errors.projectNameInEnglish}
+              error={formik.touched.projectNameHebrew && Boolean(formik.errors.projectNameHebrew)}
+              helperText={formik.touched.projectNameHebrew && formik.errors.projectNameHebrew}
             />
           </Grid>
           <Grid size={{ xs: 12, md: 6 }}>
@@ -291,8 +314,9 @@ const ProjectForm = ({ contact, show, handleClose, handleOpenDialog, onClose }) 
               value={formik.values.consumedHours}
               onChange={formik.handleChange}
               onBlur={formik.handleBlur}
-              error={formik.touched.consumedHours && Boolean(formik.errors.consumedHours)}
-              helperText={formik.touched.consumedHours && formik.errors.consumedHours}
+              // error={formik.touched.consumedHours && Boolean(formik.errors.consumedHours)}
+              // helperText={formik.touched.consumedHours && formik.errors.consumedHours}
+              disabled
             />
           </Grid>
           <Grid size={{ xs: 12, md: 6 }}>
@@ -303,8 +327,9 @@ const ProjectForm = ({ contact, show, handleClose, handleOpenDialog, onClose }) 
               value={formik.values.balanceHours}
               onChange={formik.handleChange}
               onBlur={formik.handleBlur}
-              error={formik.touched.balanceHours && Boolean(formik.errors.balanceHours)}
-              helperText={formik.touched.balanceHours && formik.errors.balanceHours}
+              // error={formik.touched.balanceHours && Boolean(formik.errors.balanceHours)}
+              // helperText={formik.touched.balanceHours && formik.errors.balanceHours}
+              disabled
             />
           </Grid>
           <Grid item size={{ xs: 12, md: 6 }}>

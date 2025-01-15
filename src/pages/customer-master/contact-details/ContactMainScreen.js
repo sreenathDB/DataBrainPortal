@@ -21,7 +21,7 @@ import AutoCompleteDataGrid from '../../../components/common/AutoCompleteDataGri
 import ContactForm from '../../../components/common/ContactForm';
 import { useDispatch, useSelector } from 'react-redux';
 import { useFormik } from 'formik';
-import { deleteContact, fetchContacts } from '../../../slices/contactSlice';
+import { deleteAContact, fetchContacts, fetchSingleContact } from '../../../slices/contactSlice';
 import MyAlert from '../../../components/common/Alert';
 import { showAlert } from '../../../slices/alertSlice';
 import { showPopup } from '../../../slices/popoverSlice';
@@ -58,6 +58,15 @@ const ContactMainScreen = () => {
         dispatch(fetchContacts());
     }, [reloadList]);
 
+
+    useEffect(() => {
+        if (isEditMode && currentUserId) {  
+            dispatch(fetchSingleContact({id: currentUserId}));
+        }
+    }, [isEditMode, currentUserId]);
+
+
+
     // Calculate Drawer Position and Height
     useEffect(() => {
         if (dataGridRef.current) {
@@ -87,7 +96,7 @@ const ContactMainScreen = () => {
     };
 
     const handleDelete = (id) => {
-        dispatch(deleteContact(id));
+        dispatch(deleteAContact({id: id})); 
         const alert = {
             open: true,
             message: "Contact deleted successfully",
@@ -109,6 +118,12 @@ const ContactMainScreen = () => {
             console.log(values);
         },
     });
+
+    const handleRowClick = (row) => {   
+        setDrawerOpen(true);
+        setIsEditMode(true);
+        setCurrentUserId(row.id);
+    }
 
 
     const columns = [
@@ -254,6 +269,7 @@ const ContactMainScreen = () => {
                     <DataGrid
                         rows={rows}
                         columns={columns}
+                        onRowClick={(rows) => handleRowClick(rows.row)}
                         disableColumnMenu
                         disableRowSelectionOnClick
                         hideFooterPagination
@@ -270,7 +286,13 @@ const ContactMainScreen = () => {
 
             <EditContainer open={drawerOpen} onClose={() => setDrawerOpen(false)}>
                 {/* <ContactForm onClose={() => setDrawerOpen(false)} /> */}
-                <ContactForm onClose={() => setDrawerOpen(false)} isEditContact={isEditMode} />  
+                <ContactForm 
+                  onClose={() => {
+                    setDrawerOpen(false)
+                    setIsEditMode(false)
+                 }} 
+                  isEditMode={isEditMode} 
+                />  
                 <DialogBox open={dialogOpen} handleCloseDialog={handleCloseDialog} />
             </EditContainer>
 

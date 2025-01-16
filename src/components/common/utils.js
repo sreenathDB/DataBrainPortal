@@ -86,7 +86,16 @@ export const getPriorityIcon = (priority) => {
       default:
         return null;
     }
-  };
+};
+
+
+//filter project by customer
+export const filterProjectByCustomer=(projects,customerId)=>{
+    const values = projects.filter(project=>project.customerId===customerId);
+    console.log("Values:",values);
+    return values;
+}
+
   
 
 

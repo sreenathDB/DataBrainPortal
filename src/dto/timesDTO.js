@@ -15,7 +15,7 @@ export const timeSheetObjDTO = {
     user: null,
     internalNotes: null,
     status: null,
-    allUsers: null,
+    isBillable: true,
 }
 
 export const buildTimeSheetObjDTO = (timeSheetObj) => { 
@@ -36,7 +36,7 @@ export const buildTimeSheetObjDTO = (timeSheetObj) => {
     timeDTO.user = timeSheetObj?.user;  
     timeDTO.internalNotes = timeSheetObj?.internalNotes;    
     timeDTO.status = timeSheetObj?.status;  
-    timeDTO.allUsers = timeSheetObj?.allUsers;  
+    timeDTO.isBillable = timeSheetObj?.isBillable;    
     return timeDTO; 
     
 }

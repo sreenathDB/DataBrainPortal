@@ -49,6 +49,12 @@ const apiName = {
     UpdateTask: "UpdateTask",
     DeleteTask: "DeleteTask",
     GetTimeSheets: "GetTimeSheets",
+    InsertTimeSheet: "InsertTimeSheet",
+    UpdateTimeSheet: "UpdateTimeSheet",
+    DeleteTimeSheet: "DeleteTimeSheet",
+    GetHours: "GetHours",
+    InsertHours: "InsertHours",
+
 }
 const ConstructApiCall = (ApiName, data = null, QueryParams = ApiQueryParams) => {
 
@@ -577,7 +583,7 @@ export const updateTask = async (taskObj) => {
         return null;
     }
 
-}   
+}
 
 //Get single task   
 export const getSingleTask = async (obj) => {
@@ -598,7 +604,7 @@ export const getSingleTask = async (obj) => {
         return null;
     }
 
-}   
+}
 
 //Delete task   
 export const deleteTask = async (taskId) => {
@@ -619,16 +625,110 @@ export const deleteTask = async (taskId) => {
         return null;
     }
 
-}   
+}
 
 //Get time sheet list   
-export const getTimeSheetList = async (timeSheetList) => {
-    return timeSheetList;
+export const getTimeSheetList = async (QueryParams) => {
+    const apiCallConfig = ConstructApiCall(apiName.GetTimeSheets, null, QueryParams);
+    console.log("API Call Config:", apiCallConfig)
+
+    try {
+        const response = await axios({
+            method: apiCallConfig.method,
+            url: apiCallConfig.url,
+            data: apiCallConfig.body,
+            headers: apiCallConfig.headers
+        });
+
+        console.log("Response:", response);
+
+        const extractedData = getDataFromResponse(response);
+        return extractedData;
+        console.log("Extracted Data:", extractedData);
+    } catch (error) {
+        console.error("API call failed", error);
+        return null;
+    }
 }
 
 //Create time sheet 
 export const createNewTimeSheet = async (timeSheetObj) => {
-    return timeSheetObj;
+    const apiCallConfig = ConstructApiCall(apiName.InsertTimeSheet, timeSheetObj);
+    console.log("API Call Config:", apiCallConfig)
+
+    try {
+        const response = await axios({
+            method: apiCallConfig.method,
+            url: apiCallConfig.url,
+            data: apiCallConfig.body,
+            headers: apiCallConfig.headers
+        });
+
+        return getDataFromResponse(response);
+    } catch (error) {
+        console.error("API call failed", error);
+        return null;
+    }
+}
+
+//Update time sheet 
+export const updateTimeSheet = async (timeSheetObj) => {
+    const apiCallConfig = ConstructApiCall(apiName.UpdateTimeSheet, timeSheetObj);
+    console.log("API Call Config:", apiCallConfig)
+
+    try {
+        const response = await axios({
+            method: apiCallConfig.method,
+            url: apiCallConfig.url,
+            data: apiCallConfig.body,
+            headers: apiCallConfig.headers
+        });
+
+        return getDataFromResponse(response);
+    } catch (error) {
+        console.error("API call failed", error);
+        return null;
+    }
+}
+
+//Get single time sheet
+export const getSingleTimeSheet = async (obj) => {
+    const apiCallConfig = ConstructApiCall(apiName.GetTimeSheets, obj);
+    console.log("API Call Config:", apiCallConfig)
+
+    try {
+        const response = await axios({
+            method: apiCallConfig.method,
+            url: apiCallConfig.url,
+            data: apiCallConfig.body,
+            headers: apiCallConfig.headers
+        });
+
+        return getDataFromResponse(response);
+    } catch (error) {
+        console.error("API call failed", error);
+        return null;
+    }
+}
+
+//Delete time sheet
+export const deleteTimeSheet = async (timeSheetId) => {
+    const apiCallConfig = ConstructApiCall(apiName.DeleteTimeSheet, timeSheetId);
+    console.log("API Call Config:", apiCallConfig)
+
+    try {
+        const response = await axios({
+            method: apiCallConfig.method,
+            url: apiCallConfig.url,
+            data: apiCallConfig.body,
+            headers: apiCallConfig.headers
+        });
+
+        return response;
+    } catch (error) {
+        console.error("API call failed", error);
+        return null;
+    }
 }
 
 //Get hours list    

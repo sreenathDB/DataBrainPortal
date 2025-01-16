@@ -24,6 +24,9 @@ import { showAlert } from '../../slices/alertSlice';
 import { showPopup } from '../../slices/popoverSlice';
 import DeletePopover from '../../components/common/DeletePopover';
 import { fetchProjectList } from '../../slices/projectSlice';
+import { fetchContacts } from '../../slices/contactSlice';
+import { fetchCustomerList } from '../../slices/customerSlice';
+import { fetchUserList } from '../../slices/userSlice';
 const NewTask = () => {
 
   const dispatch = useDispatch();
@@ -54,6 +57,9 @@ const NewTask = () => {
   useEffect(() => { 
     dispatch(getAllTasks());
     dispatch(fetchProjectList())
+    dispatch(fetchCustomerList()) 
+    dispatch(fetchContacts()) 
+    dispatch(fetchUserList()) 
   }, [reloadList]);
 
   useEffect(() => { 

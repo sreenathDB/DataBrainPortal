@@ -1,6 +1,6 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
-import { buildTaskDTO, buildTaskListDTO, buildTaskListsDTO, taskDTO } from '../dto/taskDTO';
+import {  buildTaskRecieverObjectListDTO, taskDTO } from '../dto/taskDTO';
 import { createNewTask, deleteTask, getSingleTask, getTaskList, updateTask } from '../components/common/apiCalls';
 import { Api_Status } from '../components/common/utils'; 
 
@@ -9,7 +9,7 @@ import { Api_Status } from '../components/common/utils';
 const initialState = {
     taskList: [],
     task: taskDTO,
-    status: '',
+    status: Api_Status.Idle,
     loading: false,
     error: null,
     reloadList: Api_Status.Idle,
@@ -19,7 +19,7 @@ const initialState = {
 export const createTask = createAsyncThunk('task/createTask', async (taskObj) => {
     console.log("Creating Task:", taskObj);
     const task = await createNewTask(taskObj);
-    const response = await buildTaskListDTO(task);    
+    const response = await buildTaskRecieverObjectListDTO(task);    
     console.log("Processed Task Response:", response);
     return response;
 });
@@ -28,21 +28,21 @@ export const createTask = createAsyncThunk('task/createTask', async (taskObj) =>
 export const getAllTasks = createAsyncThunk('task/getAllTasks', async () => {
     const response = await getTaskList();   
     console.log("Processed Task Response:", response);
-    return buildTaskListsDTO(response);     
+    return buildTaskRecieverObjectListDTO(response);     
 });
 
 // Async Thunk for getting a single task 
 export const getATask = createAsyncThunk('task/getATask', async (obj) => {
     const response = await getSingleTask(obj);   
     console.log("Processed Task Response:", response);
-    return buildTaskListDTO(response);     
+    return buildTaskRecieverObjectListDTO(response);     
 }); 
 
 // Async Thunk for updating a task  
 export const updateExistingTask = createAsyncThunk('task/updateExistingTask', async (taskObj) => {
     console.log("Updating Task:", taskObj);
     const task = await updateTask(taskObj);
-    const response = await buildTaskListDTO(task);    
+    const response = await buildTaskRecieverObjectListDTO(task);    
     console.log("Processed Task Response:", response);
     return response;
 });

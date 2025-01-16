@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Box, Typography, TextField, Button, MenuItem, Divider, useTheme, Autocomplete, FormControlLabel, IconButton, Checkbox, Stack, Switch } from '@mui/material'
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
@@ -27,10 +27,16 @@ import timeFormValidationSchema from './timeFormValidationSchema';
 import { createTimeSheet } from '../../slices/timeSheetSlice';
 import MyAlert from '../../components/common/Alert';
 import { showAlert } from '../../slices/alertSlice';
+import { LocalizationProvider, TimePicker } from '@mui/x-date-pickers';
+import dayjs from 'dayjs';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 
 
 const TimeForm = ({ user, show, handleClose, handleOpenDialog, onClose }) => {
     const dispatch = useDispatch();
+    const { customerList } = useSelector((state) => state.customer);
+    const { contactList } = useSelector((state) => state.contacts);
+    const { taskList } = useSelector((state) => state.task);
     const [editedUser, setEditedUser] = useState(user)
     const [isEditMode, setIsEditMode] = useState(false);
     const [isEditContact, setIsEditContact] = useState(false);
@@ -40,9 +46,9 @@ const TimeForm = ({ user, show, handleClose, handleOpenDialog, onClose }) => {
         customer: null,
         taskDate: null,
         task: null,
-        startTime: null,
+        startTime: dayjs(),
         description: null,
-        endTime: null, // Only for customer
+        endTime: dayjs(), // Only for customer
         approvedHours: null,
         remainingHours: null,
         totalTime: null,
@@ -79,6 +85,22 @@ const TimeForm = ({ user, show, handleClose, handleOpenDialog, onClose }) => {
         },
     });
 
+    useEffect(() => {
+        const { startTime, endTime } = formik.values;
+
+        if (startTime && endTime) {
+            // Calculate difference in hours
+            const diffInHours = endTime.diff(startTime, 'hour', true); // Diff in fractional hours
+            if (diffInHours > 0) {
+                console.log("diffInHours", diffInHours);
+                formik.setFieldValue('totalTime', diffInHours.toFixed(2)); // Set total time
+            } else {
+                formik.setFieldValue('totalTime', ''); // Clear total time if invalid
+            }
+        }
+    }, [formik.values.startTime, formik.values.endTime]);
+
+
 
     const handleCloseSnackbar = () => {
         setSnackbar((prev) => ({ ...prev, open: false }));
@@ -87,7 +109,7 @@ const TimeForm = ({ user, show, handleClose, handleOpenDialog, onClose }) => {
         setOpen(false);
     };
 
-    const autoCompleteDataGridColumns = ["Customer Name", "Project Type"];
+    const customerColumn = ["Customer Name"];
     const autoCompleteDataGridRows = [
         { id: 1, customerName: 'John Doe', projectType: 'Web Development' },
         { id: 2, customerName: 'Jane Smith', projectType: 'Mobile App' },
@@ -154,7 +176,7 @@ const TimeForm = ({ user, show, handleClose, handleOpenDialog, onClose }) => {
 
                 <Grid container spacing={2}>
                     <Grid item size={{ xs: 12, md: 6 }}>
-                        <AutoCompleteDataGrid
+                        {/* <AutoCompleteDataGrid
                             label="Select Customer"
                             columns={autoCompleteDataGridColumns}
                             rows={autoCompleteDataGridRows}
@@ -162,6 +184,19 @@ const TimeForm = ({ user, show, handleClose, handleOpenDialog, onClose }) => {
                             onChange={(event, value) => {
                                 formik.setFieldValue('customer', value);
                             }}
+                            onBlur={() => formik.setFieldTouched('customer', true)}
+                            error={formik.touched.customer && Boolean(formik.errors.customer)}
+                            helperText={formik.touched.customer && formik.errors.customer}
+                        /> */}
+                        <AutoCompleteDataGrid
+                            label="Select Customer"
+                            columns={customerColumn}
+                            rows={customerList.length > 0 ? customerList : []}
+                            value={formik.values.customer || null}
+                            onChange={(event, value) => {
+                                formik.setFieldValue('customer', value);
+                            }}
+                            getOptionLabel={(option) => option.label || option.customerName || ''}
                             onBlur={() => formik.setFieldTouched('customer', true)}
                             error={formik.touched.customer && Boolean(formik.errors.customer)}
                             helperText={formik.touched.customer && formik.errors.customer}
@@ -189,7 +224,7 @@ const TimeForm = ({ user, show, handleClose, handleOpenDialog, onClose }) => {
                         </TextField>
 
                     </Grid> */}
-                    <Grid item size={{ xs: 12, md: 6 }}>
+                    {/* <Grid item size={{ xs: 12, md: 6 }}>
                         <AutoCompleteDataGrid
                             label="Select Contact Person"
                             columns={contactColumns}
@@ -204,8 +239,22 @@ const TimeForm = ({ user, show, handleClose, handleOpenDialog, onClose }) => {
                             helperText={formik.touched.contactPerson && formik.errors.contactPerson}
                             disabled={false}
                         />
-                    </Grid>
-                    <Grid item size={{ xs: 12, md: 6 }}>
+                        <AutoCompleteDataGrid
+                            label="Select Contact Person"
+                            columns={contactColumns}
+                            rows={contactList.length > 0 ? contactList : []}
+                            value={formik.values.contactPerson || ''}
+                            onChange={(event, value) => {
+                                console.log("value", value);
+                                formik.setFieldValue('contactPerson', value);
+                            }}
+                            getOptionLabel={(option) => option.label || option.contactName || ''}
+                            onBlur={() => formik.setFieldTouched('contactPerson', true)}
+                            error={formik.touched.contactPerson && Boolean(formik.errors.contactPerson)}
+                            helperText={formik.touched.contactPerson && formik.errors.contactPerson}
+                        />
+                    </Grid> */}
+                    {/* <Grid item size={{ xs: 12, md: 6 }}>
                         <AutoCompleteDataGrid
                             label="Select User"
                             columns={userColumns}
@@ -220,17 +269,18 @@ const TimeForm = ({ user, show, handleClose, handleOpenDialog, onClose }) => {
                             helperText={formik.touched.user && formik.errors.user}
                             disabled={false}
                         />
-                    </Grid>
+                    </Grid> */}
                     <Grid item size={{ xs: 12, md: 6 }}>
                         <AutoCompleteDataGrid
                             label="Select Task"
                             columns={taskColumns}
-                            rows={taskRows}
+                            rows={taskList.length > 0 ? taskList : []}
                             value={formik.values.task || ''}
                             onChange={(event, value) => {
                                 console.log("value", value);
                                 formik.setFieldValue('task', value);
                             }}
+                            getOptionLabel={(option) => option.label || option.taskName || ''}
                             onBlur={() => formik.setFieldTouched('task', true)}
                             error={formik.touched.task && Boolean(formik.errors.task)}
                             helperText={formik.touched.task && formik.errors.task}
@@ -256,7 +306,7 @@ const TimeForm = ({ user, show, handleClose, handleOpenDialog, onClose }) => {
                     <Grid item size={{ xs: 12, md: 6 }} gap={2}>
                         <Grid container spacing={1}>
                             <Grid item size={{ xs: 12, md: 6 }}>
-                                <TextField
+                                {/* <TextField
                                     fullWidth
                                     id="startTime"
                                     name="startTime"
@@ -265,10 +315,29 @@ const TimeForm = ({ user, show, handleClose, handleOpenDialog, onClose }) => {
                                     onChange={formik.handleChange}
                                     error={formik.touched.startTime && Boolean(formik.errors.startTime)}
                                     helperText={formik.touched.startTime && formik.errors.startTime}
-                                />
+                                /> */}
+                                <LocalizationProvider dateAdapter={AdapterDayjs}>
+                                    <TimePicker
+                                        label="Start Time"
+                                        name='startTime'
+                                        value={formik.values.startTime}
+                                        onChange={(newValue) => formik.setFieldValue('startTime', newValue)}
+                                    >
+                                        {({ inputRef, inputProps, InputProps }) => (
+                                            <TextField
+                                                fullWidth
+                                                inputRef={inputRef}
+                                                InputProps={InputProps}
+                                                {...inputProps}
+                                                error={formik.touched.startTime && Boolean(formik.errors.startTime)}
+                                                helperText={formik.touched.startTime && formik.errors.startTime}
+                                            />
+                                        )}
+                                    </TimePicker>
+                                </LocalizationProvider>
                             </Grid>
                             <Grid item size={{ xs: 12, md: 6 }}>
-                                <TextField
+                                {/* <TextField
                                     fullWidth
                                     id="endTime"
                                     name="endTime"
@@ -277,7 +346,26 @@ const TimeForm = ({ user, show, handleClose, handleOpenDialog, onClose }) => {
                                     onChange={formik.handleChange}
                                     error={formik.touched.endTime && Boolean(formik.errors.endTime)}
                                     helperText={formik.touched.endTime && formik.errors.endTime}
-                                />
+                                /> */}
+                                <LocalizationProvider dateAdapter={AdapterDayjs}>
+                                    <TimePicker
+                                        label="End Time"
+                                        name='endTime'
+                                        value={formik.values.endTime}
+                                        onChange={(newValue) => formik.setFieldValue('endTime', newValue)}
+                                    >
+                                        {({ inputRef, inputProps, InputProps }) => (
+                                            <TextField
+                                                fullWidth
+                                                inputRef={inputRef}
+                                                InputProps={InputProps}
+                                                {...inputProps}
+                                                error={formik.touched.endTime && Boolean(formik.errors.endTime)}
+                                                helperText={formik.touched.endTime && formik.errors.endTime}
+                                            />
+                                        )}
+                                    </TimePicker>
+                                </LocalizationProvider>
                             </Grid>
                         </Grid>
                     </Grid>
@@ -291,8 +379,8 @@ const TimeForm = ({ user, show, handleClose, handleOpenDialog, onClose }) => {
                                     label="Approved Hours"
                                     value={formik.values.approvedHours}
                                     onChange={formik.handleChange}
-                                    error={formik.touched.approvedHours && Boolean(formik.errors.approvedHours)}
-                                    helperText={formik.touched.approvedHours && formik.errors.approvedHours}
+                                // error={formik.touched.approvedHours && Boolean(formik.errors.approvedHours)}
+                                // helperText={formik.touched.approvedHours && formik.errors.approvedHours}
                                 />
                             </Grid>
                             <Grid item size={{ xs: 12, md: 6 }}>
@@ -303,8 +391,8 @@ const TimeForm = ({ user, show, handleClose, handleOpenDialog, onClose }) => {
                                     label="Remaining Hours"
                                     value={formik.values.remainingHours}
                                     onChange={formik.handleChange}
-                                    error={formik.touched.remainingHours && Boolean(formik.errors.remainingHours)}
-                                    helperText={formik.touched.remainingHours && formik.errors.remainingHours}
+                                // error={formik.touched.remainingHours && Boolean(formik.errors.remainingHours)}
+                                // helperText={formik.touched.remainingHours && formik.errors.remainingHours}
                                 />
                             </Grid>
                         </Grid>
@@ -314,14 +402,19 @@ const TimeForm = ({ user, show, handleClose, handleOpenDialog, onClose }) => {
                             fullWidth
                             id="totalTime"
                             name="totalTime"
-                            label="Total Time"
-                            value={formik.values.totalTime}
+                            label="Total Time (Hours)"
+                            value={formik.values.totalTime || ''}
                             onChange={formik.handleChange}
                             error={formik.touched.totalTime && Boolean(formik.errors.totalTime)}
                             helperText={formik.touched.totalTime && formik.errors.totalTime}
+                            slotProps={{
+                                input: {
+                                    readOnly: true,
+                                },
+                            }}
                         />
                     </Grid>
-                    <Grid item size={{ xs: 12, md: 6 }}>
+                    {/*<Grid item size={{ xs: 12, md: 6 }}>
                         <TextField
                             fullWidth
                             id="totalWorkingTime"
@@ -332,8 +425,8 @@ const TimeForm = ({ user, show, handleClose, handleOpenDialog, onClose }) => {
                             error={formik.touched.totalWorkingTime && Boolean(formik.errors.totalWorkingTime)}
                             helperText={formik.touched.totalWorkingTime && formik.errors.totalWorkingTime}
                         />
-                    </Grid>
-                    <Grid item size={{ xs: 12, md: 6 }}></Grid>
+                    </Grid>*/}
+                    {/* <Grid item size={{ xs: 12, md: 6 }}></Grid> */}
                     <Grid item size={{ xs: 12, md: 6 }}>
                         <TextField
                             fullWidth
@@ -389,6 +482,19 @@ const TimeForm = ({ user, show, handleClose, handleOpenDialog, onClose }) => {
                                     />
                                     <Typography>Active</Typography>
                                 </Stack>
+                            </Grid>
+                            <Grid item size={{ xs: 12, md: 6 }}>
+                               
+                                <FormControlLabel
+                                    control={
+                                        <Checkbox
+                                            checked={checked}
+                                            onChange={handleChange}
+                                            inputProps={{ 'aria-label': 'controlled' }}
+                                        />
+                                    }
+                                    label="Label"
+                                />
                             </Grid>
 
                             {/* // <Stack direction="row" spacing={1} sx={{ alignItems: 'center' }}>

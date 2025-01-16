@@ -19,7 +19,7 @@ import Grid from '@mui/material/Grid2';
 import AutoCompleteDataGrid from '../../components/common/AutoCompleteDataGrid';
 import { createUser } from '../../slices/userSlice';
 import { userDTO } from '../../dto/userDTO';
-import { ConsultantTypes, ContactPersons, Form, getPriorityIcon, Languages, LockStatus, Module, Positions, ProjectName, Status, TaskPriority, TaskStatus, Users, UserTypeArray, userTypeObj } from '../../components/common/utils';
+import { ConsultantTypes, ContactPersons, filterProjectByCustomer, Form, getPriorityIcon, Languages, LockStatus, Module, Positions, ProjectName, Status, TaskPriority, TaskStatus, Users, UserTypeArray, userTypeObj } from '../../components/common/utils';
 import taskFormValidationSchema from './taskFormValidationSchema';
 import { Add, Edit, Person } from '@mui/icons-material';
 import PopperComponent from '../../components/common/popper';
@@ -29,13 +29,18 @@ import { createTask } from '../../slices/taskSlice';
 import { showAlert } from '../../slices/alertSlice';
 import ChatDrawer from '../../components/common/ChatDrawer';
 import ChatIcon from '@mui/icons-material/Chat';
-import { buildTaskDTO, taskDTO } from '../../dto/taskDTO';
+import { buildTaskObjectDTO, taskDTO } from '../../dto/taskDTO';
 
 
 
 const TaskForm = ({ show, handleClose, handleOpenDialog, onClose, isEditMode }) => {
   const dispatch = useDispatch();
-  const  {projectList} = useSelector(state => state.project);   
+  const  {projectList} = useSelector(state => state.project);  
+  const { customerList } = useSelector(state => state.customer);
+  const { contactList } = useSelector(state => state.contacts);  
+  const { userList } = useSelector(state => state.user); 
+  const { activity } = useSelector(state => state.activity);  
+  console.log("User List", userList); 
   // const [editedUser, setEditedUser] = useState(user)
   // const [isEditMode, setIsEditMode] = useState(false);
   const [isEditContact, setIsEditContact] = useState(false);
@@ -52,9 +57,9 @@ const TaskForm = ({ show, handleClose, handleOpenDialog, onClose, isEditMode }) 
     validationSchema: taskFormValidationSchema,
     onSubmit: (values) => {
       console.log(values);
-      const taskObj = buildTaskDTO(values);
+      const taskObj = buildTaskObjectDTO(values, activity);
       console.log("Task Object", taskObj);  
-      // dispatch(createTask(taskObj));
+      dispatch(createTask(taskObj));
       const alert = {
         open: true,
         message: 'Task Created Successfully',
@@ -64,6 +69,8 @@ const TaskForm = ({ show, handleClose, handleOpenDialog, onClose, isEditMode }) 
       onClose();
     },
   });
+
+  console.log("Formik errors", formik.errors);  
 
   const toggleDrawer = () => setChatDrawerOpen(!chatDrawerOpen);
 
@@ -84,7 +91,7 @@ const TaskForm = ({ show, handleClose, handleOpenDialog, onClose, isEditMode }) 
     setOpen(false);
   };
 
-  const autoCompleteDataGridColumns = ["Customer Name", "Project Type"];
+  const customerColumn = ["Customer Name"];
   const projectColumns = ["Project Name", "Project Type"];
   const autoCompleteDataGridRows = [
     { id: 1, customerName: 'John Doe', projectType: 'Web Development' },
@@ -167,12 +174,13 @@ const TaskForm = ({ show, handleClose, handleOpenDialog, onClose, isEditMode }) 
           <Grid item size={{ xs: 12, md: 6 }}>
             <AutoCompleteDataGrid
               label="Select Customer"
-              columns={autoCompleteDataGridColumns}
-              rows={autoCompleteDataGridRows}
-              value={formik.values.customer || ''}
+              columns={customerColumn}
+              rows={customerList.length > 0 ? customerList : []}
+              value={formik.values.customer || null}
               onChange={(event, value) => {
                 formik.setFieldValue('customer', value);
               }}
+              getOptionLabel={(option) => option.label || option.customerName || ''}
               onBlur={() => formik.setFieldTouched('customer', true)}
               error={formik.touched.customer && Boolean(formik.errors.customer)}
               helperText={formik.touched.customer && formik.errors.customer}
@@ -200,74 +208,7 @@ const TaskForm = ({ show, handleClose, handleOpenDialog, onClose, isEditMode }) 
 
             </TextField>
           </Grid> */}
-          <Grid item size={{ xs: 12, md: 6 }}>
-            <Grid container spacing={2}>
-              <Grid item size={{ xs: 12, md: 8 }}>
-                {/* <TextField
-                  select
-                  fullWidth
-                  id="contactPerson"
-                  name="contactPerson"
-                  label="Contact Person"
-                  value={formik.values.contactPerson || ''}
-                  onChange={formik.handleChange}
-                  error={formik.touched.contactPerson && Boolean(formik.errors.contactPerson)}
-                  helperText={formik.touched.contactPerson && formik.errors.contactPerson}
-                  disabled={!formik.values.customer}
-                >
-                  {
-                    ContactPersons.map((option) => (
-                      <MenuItem key={option.id} value={option}>
-                        {option.label}
-                      </MenuItem>
-                    ))
-                  }
-                </TextField> */}
-
-                <AutoCompleteDataGrid
-                  label="Select Contact Person"
-                  columns={contactColumns}
-                  rows={contactRows}
-                  value={formik.values.contactName || ''}
-                  onChange={(event, value) => {
-                    console.log("value", value);
-                    formik.setFieldValue('contactName', value);
-                  }}
-                  onBlur={() => formik.setFieldTouched('contactName', true)}
-                  error={formik.touched.contactName && Boolean(formik.errors.contactName)}
-                  helperText={formik.touched.contactName && formik.errors.contactName}
-                  disabled={!formik.values.customer}
-                />
-              </Grid>
-              <Grid item size={{ xs: 12, md: 4 }} justifyContent="center" alignItems="center">
-                {/* form and module */}
-                <Box py={1}>
-                  <IconButton
-                    size='small'
-                    variant="contained"
-                    color='primary'
-                    // sx={{
-                    //   color: 'white',
-                    // }}
-                    onClick={handleClick}
-                    disabled={!formik.values.customer}
-                    disableRipple
-                  >
-                    <Add />
-                  </IconButton>
-                  <IconButton
-                    size='small'
-                    color='primary'
-                    variant="contained"
-                    onClick={handleEditButtonClick}
-                    disabled={!formik.values.customer}
-                    disableRipple>
-                    <Edit />
-                  </IconButton>
-                </Box>
-              </Grid>
-            </Grid>
-          </Grid>
+          
           {/* <Grid item size={{ xs: 12, md: 6 }}>
             <TextField
               fullWidth
@@ -315,7 +256,7 @@ const TaskForm = ({ show, handleClose, handleOpenDialog, onClose, isEditMode }) 
               track="Project"
               label="Select Projects"
               columns={projectColumns}
-              rows={projectList.length > 0 ? projectList : []}  
+              rows={projectList.length > 0 ? filterProjectByCustomer(projectList, formik.values.customer?.id) : []}  
               value={formik.values.project || ''}
               onChange={(event, value) => {
                 formik.setFieldValue('project', value);
@@ -324,6 +265,7 @@ const TaskForm = ({ show, handleClose, handleOpenDialog, onClose, isEditMode }) 
               onBlur={() => formik.setFieldTouched('project', true)}
               error={formik.touched.project && Boolean(formik.errors.project)}
               helperText={formik.touched.project && formik.errors.project}
+              disabled={!formik.values.customer}
             />
 
           </Grid>
@@ -410,26 +352,34 @@ const TaskForm = ({ show, handleClose, handleOpenDialog, onClose, isEditMode }) 
               id="balanceHours"
               name="balanceHours"
               label="Balance Hours"
-              value={formik.values.balanceHours}
+              // value={formik.values.balanceHours}
+              defaultValue={10}
               onChange={formik.handleChange}
-              error={formik.touched.balanceHours && Boolean(formik.errors.balanceHours)}
-              helperText={formik.touched.balanceHours && formik.errors.balanceHours}
+              // error={formik.touched.balanceHours && Boolean(formik.errors.balanceHours)}
+              // helperText={formik.touched.balanceHours && formik.errors.balanceHours}
+              slotProps={{
+                input: {
+                  readOnly: true,
+                },
+              }}
             />
           </Grid>
           <Grid item size={{ xs: 12, md: 6 }}>
             <Autocomplete
-              value={formik.values.user || ''}
+              value={formik.values.user || null}
               onChange={(event, value) => {
                 formik.setFieldValue('user', value);
               }}
-              options={Users}
-              getOptionLabel={(option) => option} // Assuming 'name' is the property with the user's name
+              options={userList.length > 0 ? userList : []} 
+              getOptionLabel={(option) =>
+                option ? `${option.firstName} ${option.lastName}` : ''
+              } 
               onBlur={() => formik.setFieldTouched('user', true)}
               renderOption={(props, option) => (
                 <li {...props}>
                   <Avatar
                     src="" // Assuming 'avatar' is the property with the image URL
-                    alt={option.name}
+                    alt={`${option.firstName} ${option.lastName}`}
                     style={{
                       width: 30,
                       height: 30,
@@ -437,7 +387,7 @@ const TaskForm = ({ show, handleClose, handleOpenDialog, onClose, isEditMode }) 
                       marginRight: 10,
                     }}
                   />
-                  {option}
+                   {`${option.firstName} ${option.lastName} (${option.userName})`}
                 </li>
               )}
               renderInput={(params) => (
@@ -472,8 +422,8 @@ const TaskForm = ({ show, handleClose, handleOpenDialog, onClose, isEditMode }) 
             <Box component="div" sx={{ height: "auto" }} paddingY={2} mb={2}>
               <Typography variant="h6" gutterBottom>Detail Description</Typography>
               <ReactQuill theme='snow'
-                value={formik.values.detailDescription}
-                onChange={(value) => formik.setFieldValue('detailDescription', value)}
+                value={formik.values.description}
+                onChange={(value) => formik.setFieldValue('description', value)}
                 style={{ height: '90px', marginBottom: 16 }}
               />
             </Box>

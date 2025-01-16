@@ -23,8 +23,12 @@ import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile';
 import CloseIcon from '@mui/icons-material/Close';
 import EmojiPicker from 'emoji-picker-react';
 import ChatInput from './ChatInput';
+import { useDispatch } from 'react-redux';  
+import { addActivity } from '../../slices/activitySlice';
 
 export default function ChatDrawer({ open, toggleDrawer }) {
+
+    const dispatch = useDispatch();     
     const [messages, setMessages] = useState([]);
     const [input, setInput] = useState("");
     const [attachment, setAttachment] = useState(null);
@@ -45,9 +49,11 @@ export default function ChatDrawer({ open, toggleDrawer }) {
                     index === editIndex ? { ...msg, text: input, file: attachment } : msg
                 );
                 setMessages(updatedMessages);
+                dispatch(addActivity(updatedMessages)); 
                 setEditIndex(null);
             } else {
                 setMessages([...messages, { text: input, file: attachment }]);
+                dispatch(addActivity([...messages, { text: input, file: attachment }]));    
             }
             setInput('');
             setAttachment(null);
@@ -85,6 +91,7 @@ export default function ChatDrawer({ open, toggleDrawer }) {
 
     // Handle File Attachment
     const handleFileChange = (event) => {
+        console.log("event", event.target.files);
         setAttachment(event.target.files[0]);
     };
 

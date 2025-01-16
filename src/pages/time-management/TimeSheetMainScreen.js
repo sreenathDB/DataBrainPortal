@@ -19,17 +19,20 @@ import { userTypeObj } from '../../components/common/utils';
 import EditContainer from '../../components/common/EditContainer';
 import TaskForm from '../task-management/TaskForm';
 import TimeForm from './TimeForm';
-import { deleteTimeSheet } from '../../slices/timeSheetSlice';
+import { deleteATimeSheet, fetchTimeSheetList } from '../../slices/timeSheetSlice';
 import MyAlert from '../../components/common/Alert';
 import { showAlert } from '../../slices/alertSlice';
 import DeletePopover from '../../components/common/DeletePopover';
 import { showPopup } from '../../slices/popoverSlice';
+import { fetchCustomerList } from '../../slices/customerSlice';
+import { fetchContacts } from '../../slices/contactSlice';
+import { getAllTasks } from '../../slices/taskSlice';
 
 
 const TimeSheetMainScreen = () => {
 
   const dispatch = useDispatch();
-  const { timeSheetList } = useSelector((state) => state.timeSheet);
+  const { timeSheetList, reloadList } = useSelector((state) => state.timeSheet);
   const { alert } = useSelector((state) => state.alert);
   console.log("Time sheet List:", timeSheetList);
   const [users, setUsers] = useState([]);
@@ -52,12 +55,13 @@ const TimeSheetMainScreen = () => {
   const [anchorEl, setAnchorEl] = useState(null);
   const dataGridRef = useRef();
 
-  // Fetch users from backend
-  // useEffect(() => {
-  //   if (user) {
-  //   dispatch(fetchUserList());
-  //   }
-  // }, [userList]);
+  useEffect(() => {
+    dispatch(fetchTimeSheetList());
+    dispatch(fetchCustomerList());
+    dispatch(fetchContacts()); 
+    dispatch(getAllTasks());   
+
+  }, [reloadList]);
 
   // Calculate Drawer Position and Height
   useEffect(() => {
@@ -89,7 +93,7 @@ const TimeSheetMainScreen = () => {
 
   const handleDelete = (id) => {
     console.log("Delete data", id);
-    dispatch(deleteTimeSheet(id));
+    dispatch(deleteATimeSheet({id: id}));
     const alert = {
       open: true,
       message: "Time entry deleted successfully",

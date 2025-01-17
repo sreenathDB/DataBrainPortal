@@ -30,6 +30,7 @@ import { showAlert } from '../../slices/alertSlice';
 import { LocalizationProvider, TimePicker } from '@mui/x-date-pickers';
 import dayjs from 'dayjs';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { buildTimeSheetObjDTO, timeSheetObjDTO } from '../../dto/timesDTO';
 
 
 const TimeForm = ({ user, show, handleClose, handleOpenDialog, onClose }) => {
@@ -42,23 +43,7 @@ const TimeForm = ({ user, show, handleClose, handleOpenDialog, onClose }) => {
     const [isEditContact, setIsEditContact] = useState(false);
     const [anchorEl, setAnchorEl] = useState(null);
     const [open, setOpen] = useState(false);
-    const [formData, setFormData] = useState({
-        customer: null,
-        taskDate: null,
-        task: null,
-        startTime: dayjs(),
-        description: null,
-        endTime: dayjs(), // Only for customer
-        approvedHours: null,
-        remainingHours: null,
-        totalTime: null,
-        totalWorkingTime: null,
-        contactPerson: null,
-        user: null,
-        internalNotes: null,
-        status: false,
-        allUsers: false,
-    });
+    const [formData, setFormData] = useState({ ...timeSheetObjDTO });
     const [snackbar, setSnackbar] = useState({
         open: false,
         message: '',
@@ -72,7 +57,9 @@ const TimeForm = ({ user, show, handleClose, handleOpenDialog, onClose }) => {
         validationSchema: timeFormValidationSchema,
         onSubmit: (values) => {
             console.log(values);
-            dispatch(createTimeSheet(values));
+            const timeSheetObj = buildTimeSheetObjDTO(values);  
+            console.log("timeSheetObj", timeSheetObj);
+            // dispatch(createTimeSheet(values));
             // dispatch(createUser(values));
             // handleOpenDialog()
             const alert = {
@@ -85,6 +72,8 @@ const TimeForm = ({ user, show, handleClose, handleOpenDialog, onClose }) => {
         },
     });
 
+    console.log("Fomik errors", formik.errors); 
+
     useEffect(() => {
         const { startTime, endTime } = formik.values;
 
@@ -92,7 +81,6 @@ const TimeForm = ({ user, show, handleClose, handleOpenDialog, onClose }) => {
             // Calculate difference in hours
             const diffInHours = endTime.diff(startTime, 'hour', true); // Diff in fractional hours
             if (diffInHours > 0) {
-                console.log("diffInHours", diffInHours);
                 formik.setFieldValue('totalTime', diffInHours.toFixed(2)); // Set total time
             } else {
                 formik.setFieldValue('totalTime', ''); // Clear total time if invalid
@@ -483,19 +471,7 @@ const TimeForm = ({ user, show, handleClose, handleOpenDialog, onClose }) => {
                                     <Typography>Active</Typography>
                                 </Stack>
                             </Grid>
-                            <Grid item size={{ xs: 12, md: 6 }}>
-                               
-                                <FormControlLabel
-                                    control={
-                                        <Checkbox
-                                            checked={checked}
-                                            onChange={handleChange}
-                                            inputProps={{ 'aria-label': 'controlled' }}
-                                        />
-                                    }
-                                    label="Label"
-                                />
-                            </Grid>
+
 
                             {/* // <Stack direction="row" spacing={1} sx={{ alignItems: 'center' }}>
                                 //     <Typography>Inactive</Typography>
@@ -520,6 +496,20 @@ const TimeForm = ({ user, show, handleClose, handleOpenDialog, onClose }) => {
                             }
                             label="All Users"
                         /> */}
+                    </Grid>
+                    <Grid item size={{ xs: 12, md: 6 }}>
+
+                        <FormControlLabel
+
+                            control={
+                                <Checkbox
+                                    checked={formik.values.isBillable}
+                                    onChange={formik.handleChange}
+                                    inputProps={{ 'aria-label': 'controlled' }}
+                                />
+                            }
+                            label="Billable"
+                        />
                     </Grid>
                     {/* <Grid item size={{ xs: 12, md: 6 }}>
                         <Stack direction="row" spacing={1} sx={{ alignItems: 'center' }}>

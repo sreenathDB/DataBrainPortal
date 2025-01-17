@@ -21,7 +21,7 @@ export const buildTaskChatObjectDTO = (taskChat) => {
     tcDTO.taskId = taskChat?.taskId;
     tcDTO.chatNote = taskChat?.text;
     tcDTO.emoji = taskChat?.reactions;
-    tcDTO.flaged = taskChat?.flaged;
+    tcDTO.flaged = taskChat?.flaged; //used for pin and start messages
     tcDTO.tagUserId = taskChat?.tagUserId;
     tcDTO.parentChat = taskChat?.parentChat;
     tcDTO.status = taskChat?.status;

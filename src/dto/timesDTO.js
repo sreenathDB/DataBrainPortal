@@ -3,7 +3,9 @@ export const timeSheetObjDTO = {
     id: 0,
     customer: null,
     taskDate: null, 
-    task: null, 
+    endDate: null,  
+    task: null,
+    taskId: null,    
     startTime: null,    
     description: null,
     endTime: null,  
@@ -14,7 +16,7 @@ export const timeSheetObjDTO = {
     contactPerson: null,
     user: null,
     internalNotes: null,
-    status: null,
+    status: true,
     isBillable: true,
 }
 
@@ -24,7 +26,9 @@ export const buildTimeSheetObjDTO = (timeSheetObj) => {
     timeDTO.id = id + 1;
     timeDTO.customer = timeSheetObj?.customer;
     timeDTO.taskDate = timeSheetObj?.taskDate;  
-    timeDTO.task = timeSheetObj?.task;  
+    timeDTO.endDate = timeSheetObj?.endDate || timeSheetObj?.taskDate;    
+    timeDTO.task = timeSheetObj?.task;
+    timeDTO.taskId = timeSheetObj?.taskId || timeSheetObj?.task?.id || 1;      
     timeDTO.startTime = timeSheetObj?.startTime;    
     timeDTO.description = timeSheetObj?.description;    
     timeDTO.endTime = timeSheetObj?.endTime;    

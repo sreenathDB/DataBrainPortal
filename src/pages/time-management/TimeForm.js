@@ -33,13 +33,14 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { buildTimeSheetObjDTO, timeSheetObjDTO } from '../../dto/timesDTO';
 
 
-const TimeForm = ({ user, show, handleClose, handleOpenDialog, onClose }) => {
+const TimeForm = ({ isEditMode, onClose }) => {
     const dispatch = useDispatch();
     const { customerList } = useSelector((state) => state.customer);
     const { contactList } = useSelector((state) => state.contacts);
     const { taskList } = useSelector((state) => state.task);
-    const [editedUser, setEditedUser] = useState(user)
-    const [isEditMode, setIsEditMode] = useState(false);
+    const { timeSheet } = useSelector((state) => state.timeSheet);
+    // const [editedUser, setEditedUser] = useState(user)
+    // const [isEditMode, setIsEditMode] = useState(false);
     const [isEditContact, setIsEditContact] = useState(false);
     const [anchorEl, setAnchorEl] = useState(null);
     const [open, setOpen] = useState(false);
@@ -57,22 +58,32 @@ const TimeForm = ({ user, show, handleClose, handleOpenDialog, onClose }) => {
         validationSchema: timeFormValidationSchema,
         onSubmit: (values) => {
             console.log(values);
-            const timeSheetObj = buildTimeSheetObjDTO(values);  
+            const timeSheetObj = buildTimeSheetObjDTO(values);
             console.log("timeSheetObj", timeSheetObj);
-            // dispatch(createTimeSheet(values));
-            // dispatch(createUser(values));
-            // handleOpenDialog()
-            const alert = {
-                open: true,
-                message: 'Time Sheet Created Successfully',
-                severity: 'success',
+            if (isEditMode && timeSheet.length > 0) {
+                timeSheetObj.id = timeSheet[0].id;
+                // dispatch(updateExistingTimeSheet(timeSheetObj));
+                const alert = {
+                    open: true,
+                    message: "Time sheet updated successfully",
+                    severity: "success",
+                };
+                dispatch(showAlert(alert));
+                onClose();
+            }else{
+                dispatch(createTimeSheet(timeSheetObj));
+                const alert = {
+                    open: true,
+                    message: "Time sheet created successfully",
+                    severity: "success",
+                };
+                dispatch(showAlert(alert));
+                onClose();
             }
-            dispatch(showAlert(alert));
-            onClose();
-        },
-    });
+        }
+        });
 
-    console.log("Fomik errors", formik.errors); 
+    console.log("Fomik errors", formik.errors);
 
     useEffect(() => {
         const { startTime, endTime } = formik.values;

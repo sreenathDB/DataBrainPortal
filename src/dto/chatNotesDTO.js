@@ -11,7 +11,7 @@ export const taskChatDTO = {
     createdAt: null,
     createdBy: null,
     modifiedAt: null,
-    modifiedBy: null,       
+    modifiedBy: null,      
 }
 
 //This is for to create a new task chat object (client to server)

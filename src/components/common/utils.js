@@ -100,6 +100,31 @@ export const filterProjectByCustomer=(projects,customerId)=>{
 //time formating
 export const isValidTime = (time) => /^\d{2}:\d{2}$/.test(time);
 
+//calculate total time  
+export function CalculateTotalTime(startTime, endTime) {
+  // Convert times to Date objects with a reference date
+  let refDate = "1970-01-01";  // Using an arbitrary date for calculation
+  let startDateTime = new Date(`${refDate}T${startTime}`);
+  let endDateTime = new Date(`${refDate}T${endTime}`);
+
+  // Calculate the difference in milliseconds
+  let timeDifference = endDateTime - startDateTime;
+
+  // Handle overnight cases (if endTime is past midnight)
+  if (timeDifference < 0) {
+      endDateTime.setDate(endDateTime.getDate() + 1);
+      timeDifference = endDateTime - startDateTime;
+  }
+
+  // Convert milliseconds to hours and minutes
+  let totalHours = Math.floor(timeDifference / (1000 * 60 * 60));
+  let totalMinutes = Math.floor((timeDifference % (1000 * 60 * 60)) / (1000 * 60));
+
+  return `${totalHours} hours, ${totalMinutes} minutes`;
+}
+
+
+
 
   
 

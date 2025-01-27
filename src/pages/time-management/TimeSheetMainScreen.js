@@ -15,11 +15,11 @@ import { DataGrid } from '@mui/x-data-grid';
 import { Delete, Edit } from '@mui/icons-material';
 
 import { useDispatch, useSelector } from 'react-redux';
-import { userTypeObj } from '../../components/common/utils';
+import { CalculateTotalTime, userTypeObj } from '../../components/common/utils';
 import EditContainer from '../../components/common/EditContainer';
 import TaskForm from '../task-management/TaskForm';
 import TimeForm from './TimeForm';
-import { deleteATimeSheet, fetchTimeSheetList } from '../../slices/timeSheetSlice';
+import { deleteATimeSheet, fetchATimeSheet, fetchTimeSheetList } from '../../slices/timeSheetSlice';
 import MyAlert from '../../components/common/Alert';
 import { showAlert } from '../../slices/alertSlice';
 import DeletePopover from '../../components/common/DeletePopover';
@@ -45,7 +45,7 @@ const TimeSheetMainScreen = () => {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
-  const [currentUserId, setCurrentUserId] = useState(null);
+  const [currentTimeSheetId, setCurrentTimeSheetId] = useState(null);
   const [drawerStyles, setDrawerStyles] = useState({});
   const [snackbar, setSnackbar] = useState({
     open: false,
@@ -62,6 +62,12 @@ const TimeSheetMainScreen = () => {
     dispatch(getAllTasks());   
 
   }, [reloadList]);
+
+  useEffect(() => {   
+          if (isEditMode && currentTimeSheetId) {      
+              dispatch(fetchATimeSheet({id: currentTimeSheetId}));  
+          }
+      }, [isEditMode, currentTimeSheetId]);  
 
   // Calculate Drawer Position and Height
   useEffect(() => {
@@ -106,6 +112,12 @@ const TimeSheetMainScreen = () => {
   const handleCloseSnackbar = () => {
     setSnackbar((prev) => ({ ...prev, open: false }));
   };
+
+  const handleRowClick = (row) => {   
+    setIsEditMode(true);
+    setCurrentTimeSheetId(row.id);
+    setDrawerOpen(true);
+};
 
   const columns = [
     {
@@ -221,6 +233,13 @@ const TimeSheetMainScreen = () => {
       renderHeader: () => (
         <strong>Task Date</strong>
       ),
+      renderCell: (params) => {
+        if (!params.row.taskDate) {
+          return 'N/A';
+        } 
+        const date = new Date(params.row.taskDate);
+        return date.toLocaleDateString();
+      },
       flex: 1,
       minWidth: 150,
     },
@@ -239,6 +258,10 @@ const TimeSheetMainScreen = () => {
       renderHeader: () => (
         <strong>Start Time</strong>
       ),
+      renderCell: (params) => {
+        return params.row.startTime ? params.row.startTime : 'N/A';
+        
+      },
       flex: 1,
       minWidth: 150,
     },
@@ -248,6 +271,9 @@ const TimeSheetMainScreen = () => {
       renderHeader: () => (
         <strong>End Time</strong>
       ),
+      renderCell: (params) => {
+        return params.row.endTime ? params.row.endTime : 'N/A';
+      },
       flex: 1,
       minWidth: 150,
     },
@@ -257,6 +283,9 @@ const TimeSheetMainScreen = () => {
       renderHeader: () => (
         <strong>Approved Hours</strong>
       ),
+      renderCell: (params) => {
+        return params.row.approvedHours ? params.row.approvedHours : 'N/A';
+      },
       flex: 1,
       minWidth: 150,
     },
@@ -266,6 +295,9 @@ const TimeSheetMainScreen = () => {
       renderHeader: () => (
         <strong>Remaining Hours</strong>
       ),
+      renderCell: (params) => {
+        return params.row.remainingHours ? params.row.remainingHours : 'N/A';
+      },
       flex: 1,
       minWidth: 150,
     },
@@ -275,6 +307,15 @@ const TimeSheetMainScreen = () => {
       renderHeader: () => (
         <strong>Total Time</strong>
       ),
+      renderCell: (params) => {
+       if (params.row.startTime && params.row.endTime) {
+          return CalculateTotalTime(params.row.startTime, params.row.endTime);
+       }else{
+        return 'N/A';
+       }
+
+        
+      },
       flex: 1,
       minWidth: 150,
     },
@@ -284,6 +325,9 @@ const TimeSheetMainScreen = () => {
       renderHeader: () => (
         <strong>Total Working Time</strong>
       ),
+      renderCell: (params) => {
+        return params.row.totalWorkingTime ? params.row.totalWorkingTime : 'N/A';
+      },
       flex: 1,
       minWidth: 150,
     },
@@ -293,6 +337,9 @@ const TimeSheetMainScreen = () => {
       renderHeader: () => (
         <strong>Description</strong>
       ),
+      renderCell: (params) => {
+        return params.row.description ? params.row.description : 'N/A';
+      },
       flex: 1,
       minWidth: 150,
     },
@@ -302,6 +349,9 @@ const TimeSheetMainScreen = () => {
       renderHeader: () => (
         <strong>Internal Notes</strong>
       ),
+      renderCell: (params) => {
+        return params.row.internalNotes ? params.row.internalNotes : 'N/A';
+      },
       flex: 1,
       minWidth: 150,
     },
@@ -367,6 +417,7 @@ const TimeSheetMainScreen = () => {
               <DataGrid
                 rows={rows}
                 columns={columns}
+                onRowClick={(rows) => handleRowClick(rows.row)}
                 disableColumnMenu
                 disableRowSelectionOnClick
                 hideFooterPagination
@@ -383,7 +434,14 @@ const TimeSheetMainScreen = () => {
         </Card>
 
         <EditContainer open={drawerOpen} onClose={() => setDrawerOpen(false)}>
-          <TimeForm onClose={() => setDrawerOpen(false)} handleOpenDialog={handleOpenDialog} />
+          <TimeForm 
+            onClose={() => {
+            setDrawerOpen(false)
+            setIsEditMode(false)
+            setCurrentTimeSheetId(null)
+            }} 
+            isEditMode={isEditMode}
+            handleOpenDialog={handleOpenDialog} />
         </EditContainer>
 
 

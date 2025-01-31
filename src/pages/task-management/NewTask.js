@@ -120,8 +120,7 @@ const NewTask = () => {
     setIsEditMode(true);
     setCurrentTaskId(row.id);
     setDrawerOpen(true);
-  };
-
+  }; 
   const columns = [
     {
       field: 'actions',

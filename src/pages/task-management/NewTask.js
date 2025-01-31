@@ -31,6 +31,11 @@ const NewTask = () => {
 
   const dispatch = useDispatch();
   const { taskList, reloadList } = useSelector((state) => state.task);
+  const { projectList } = useSelector((state) => state.project);  
+  const { customerList } = useSelector((state) => state.customer);
+  const { contactList } = useSelector((state) => state.contacts);
+  const { userList } = useSelector((state) => state.user);
+
   console.log("Task List:", taskList);
   const [users, setUsers] = useState([]);
   const [formData, setFormData] = useState({
@@ -117,165 +122,191 @@ const NewTask = () => {
     setDrawerOpen(true);
   };
 
-  // const columns = [
-  //   {
-  //     field: 'actions',
-  //     headerName: 'Actions',
-  //     renderHeader: () => ( 
-  //       <strong>Actions</strong>
-  //     ),
-  //     flex: 1,
-  //     minWidth: 150,
-  //     renderCell: (params) => (
-  //       <Box>
-  //         <IconButton
-  //           size="small"
-  //           variant="contained"
-  //           color="primary"
-  //         // onClick={() => handleEditClick(params.row)}
-  //         >
-  //           <Edit />
-  //         </IconButton>
-  //         <IconButton
-  //           size="small"
-  //           variant="contained"
-  //           color="secondary"
-  //         // onClick={() => handleDelete(params.row.id)}
-  //         >
-  //           <Delete />
-  //         </IconButton>
-  //       </Box>
-  //     ),
-  //   },
-  //   { 
-  //     field: 'ticketNumber',   
-  //     headerName: 'Ticket Number', 
-  //     renderHeader: () => ( 
-  //       <strong>Ticket Number</strong>
-  //     ),
-  //     flex: 1,
-  //     minWidth: 150, 
-  //   },
-  //   { 
-  //     field: 'customer', 
-  //     headerName: 'Customer', 
-  //     renderHeader: () => ( 
-  //       <strong>Customer</strong>
-  //     ),
-  //     flex: 1,
-  //     minWidth: 150,
-  //   },
-  //   { 
-  //     field: 'module', 
-  //     headerName: 'Module', 
-  //     renderHeader: () => ( 
-  //       <strong>Module</strong>
-  //     ),
-  //     flex: 1,
-  //     minWidth: 150,
-  //   },
-  //   { 
-  //     field: 'contactName', 
-  //     headerName: 'Contact Name', 
-  //     renderHeader: () => ( 
-  //       <strong>Contact Name</strong>
-  //     ),
-  //     flex: 1,
-  //     minWidth: 150, 
-  //   },
-  //   { 
-  //     field: 'form', 
-  //     headerName: 'Form', 
-  //     renderHeader: () => ( 
-  //       <strong>Form</strong>
-  //     ),
-  //     flex: 1,
-  //     minWidth: 150,
-  //   },
-  //   { 
-  //     field: 'projectName', 
-  //     headerName: 'Project Name', 
-  //     renderHeader: () => ( 
-  //       <strong>Project Name</strong>
-  //     ),
-  //     flex: 1,
-  //     minWidth: 150, 
-  //   },
-  //   { 
-  //     field: 'subject', 
-  //     headerName: 'Subject', 
-  //     renderHeader: () => ( 
-  //       <strong>Subject</strong>
-  //     ),
-  //     flex: 1,
-  //     minWidth: 150, 
-  //   },
-  //   { 
-  //     field: 'attachment', 
-  //     headerName: 'Attachment', 
-  //     renderHeader: () => ( 
-  //       <strong>Attachment</strong>
-  //     ),
-  //     flex: 1,
-  //     minWidth: 150,
-  //   },
-  //   { 
-  //     field: 'status', 
-  //     headerName: 'Status', 
-  //     renderHeader: () => ( 
-  //       <strong>Status</strong>
-  //     ),
-  //     flex: 1,
-  //     minWidth: 150, 
-  //   },
-  //   { 
-  //     field: 'approvedHours', 
-  //     headerName: 'Approved Hours', 
-  //     renderHeader: () => ( 
-  //       <strong>Approved Hours</strong>
-  //     ),
-  //     flex: 1,
-  //     minWidth: 150,
-  //   },
-  //   { 
-  //     field: 'balanceHours', 
-  //     headerName: 'Balance Hours',   
-  //     renderHeader: () => ( 
-  //       <strong>Balance Hours</strong>
-  //     ),
-  //     flex: 1,
-  //     minWidth: 150, 
-  //   },
-  //   { 
-  //     field: 'priority', 
-  //     headerName: 'Priority',   
-  //     renderHeader: () => ( 
-  //       <strong>Priority</strong>
-  //     ),
-  //     flex: 1,
-  //     minWidth: 150, 
-  //   },
-  //   { 
-  //     field: 'detailDescription',  
-  //     headerName: 'Detail Description',    
-  //     renderHeader: () => ( 
-  //       <strong>Detail Description</strong>
-  //     ),
-  //     flex: 1,
-  //     minWidth: 150, 
-  //   },
-  //   { 
-  //     field: 'user',  
-  //     headerName: 'User',    
-  //     renderHeader: () => ( 
-  //       <strong>User</strong>
-  //     ),
-  //     flex: 1,
-  //     minWidth: 150, 
-  //   },
+  const columns = [
+    {
+      field: 'actions',
+      headerName: 'Actions',
+      renderHeader: () => ( 
+        <strong>Actions</strong>
+      ),
+      flex: 1,
+      minWidth: 150,
+      renderCell: (params) => (
+        <Box>
+          <IconButton
+            size="small"
+            variant="contained"
+            color="primary"
+          // onClick={() => handleEditClick(params.row)}
+          >
+            <Edit />
+          </IconButton>
+          <IconButton
+            size="small"
+            variant="contained"
+            color="secondary"
+          // onClick={() => handleDelete(params.row.id)}
+          >
+            <Delete />
+          </IconButton>
+        </Box>
+      ),
+    },
+    { 
+      field: 'ticketNumber',   
+      headerName: 'Ticket Number', 
+      renderHeader: () => ( 
+        <strong>Ticket Number</strong>
+      ),
+      flex: 1,
+      minWidth: 150, 
+    },
+    { 
+      field: 'taskName',   
+      headerName: 'Task Name', 
+      renderHeader: () => ( 
+        <strong>Task Name</strong>
+      ),
+      renderCell: (params) => {
+        const taskName = params.row.taskName;
+        const taskNameHebrew = params.row.taskNameHebrew;
+        return taskName ? (
+          <div>
+            <p>{taskName} ({taskNameHebrew})</p>
+          </div>
+        ) : (
+          <p>No task name</p>
+        );
+      },
+      flex: 1,
+      minWidth: 150, 
+    },
+    { 
+      field: 'customer', 
+      headerName: 'Customer', 
+      renderHeader: () => ( 
+        <strong>Customer</strong>
+      ),
+      renderCell: (params) => {
+        const customerId = params.row?.customer?.id;
+        const customer = customerList.find(customer => customer.id === customerId);  
+        return customer ? (
+          <div>
+            <p>{customer?.customerName}</p>
+          </div>
+        ) : (
+          <p>No customer name</p>
+        );
+      },
+      flex: 1,
+      minWidth: 150,
+    },
+    { 
+      field: 'projectName', 
+      headerName: 'Project Name', 
+      renderHeader: () => ( 
+        <strong>Project Name</strong>
+      ),
+      renderCell: (params) => {
+        const projectId = params.row.projectId;
+        const project = projectList.find(project => project.id === projectId);  
+        return project ? (
+          <div>
+            <p>{project.projectName}</p>
+          </div>
+        ) : (
+          <p>No project name</p>
+        );
+      },
+      flex: 1,
+      minWidth: 150, 
+    },
+    { 
+      field: 'contactName', 
+      headerName: 'Contact Name', 
+      renderHeader: () => ( 
+        <strong>Contact Name</strong>
+      ),
+      renderCell: (params) => {
+        const contactId = params.row?.customer?.contactId;
+        const contact = contactList.find(contact => contact.id === contactId);  
+        return contact ? (
+          <div>
+            <p>{contact.contactName}</p>
+          </div>
+        ) : (
+          <p>No contact name</p>
+        );
+      },
+      flex: 1,
+      minWidth: 150, 
+    },
+    { 
+      field: 'assignToUser', 
+      headerName: 'Assigned User', 
+      renderHeader: () => ( 
+        <strong>Assigned User</strong>
+      ),
+      flex: 1,
+      minWidth: 150, 
+    },
+    { 
+      field: 'approvedHours',  
+      headerName: 'Approved Hours', 
+      renderHeader: () => ( 
+        <strong>Approved Hours</strong>
+      ),
+      flex: 1,
+      minWidth: 150, 
+    },
+    { 
+      field: 'balanceHours',  
+      headerName: 'Balance Hours', 
+      renderHeader: () => ( 
+        <strong>Balance Hours</strong>
+      ),
+      flex: 1,
+      minWidth: 150, 
+    },
+    { 
+      field: 'createdAt',  
+      headerName: 'Created On', 
+      renderHeader: () => ( 
+        <strong>Created On</strong>
+      ),
+      flex: 1,
+      minWidth: 150, 
+    },
+    { 
+      field: 'modifiedAt',  
+      headerName: 'Modified On', 
+      renderHeader: () => ( 
+        <strong>Modified On</strong>
+      ),
+      flex: 1,
+      minWidth: 150, 
+    },
+    { 
+      field: 'createdBy',  
+      headerName: 'Created By', 
+      renderHeader: () => ( 
+        <strong>Created By</strong>
+      ),
+      flex: 1,
+      minWidth: 150, 
+    },
+    { 
+      field: 'modifiedBy',  
+      headerName: 'Modified By', 
+      renderHeader: () => ( 
+        <strong>Modified By</strong>
+      ),
+      flex: 1,
+      minWidth: 150, 
+    },
     
-    
-  // ];
+
+  ];
 
   const rows = users;
 
@@ -356,107 +387,109 @@ const NewTask = () => {
     return columns;
   };
 
-  const columns = [
-    {
-      field: 'actions',
-      headerName: '',
-      renderHeader: () => ( 
-        <strong></strong>
-      ),
-      flex: 1,
-      minWidth: 150,
-      renderCell: (params) => (
-        <Box>
-          <IconButton
-            size="small"
-            variant="contained"
-            color="primary"
-          // onClick={() => handleEditClick(params.row)}
-          >
-            <Edit />
-          </IconButton>
-          <IconButton
-            size="small"
-            variant="contained"
-            color="secondary"
-            onClick={() => handleDelete(params.row.id)}
-          >
-            <Delete />
-          </IconButton>
-        </Box>
-      ),
-    },
-    { 
-      field: 'ticketNumber',   
-      headerName: 'Ticket Number', 
-      renderHeader: () => ( 
-        <strong>Ticket Number</strong>
-      ),
-      flex: 1,
-      minWidth: 150, 
-    },
-    { 
-      field: 'customer', 
-      headerName: 'Customer', 
-      renderHeader: () => ( 
-        <strong>Customer</strong>
-      ),
-      renderCell: (params) => {
-        const customer = params.row.customer;
-        return customer ? (
-          <div>
-            <p>{customer.customerName}</p>
-            <p>{customer.projectType}</p> 
-          </div>
-        ) : (
-          <p>N/A</p>
-        );
-      },
-      flex: 1,
-      minWidth: 150,
-    },
-    { 
-      field: 'contactName', 
-      headerName: 'Contact Name', 
-      renderHeader: () => ( 
-        <strong>Contact Name</strong>
-      ),
-      renderCell: (params) => {
-        const contactName = params.row.contactName;
-        return contactName ? (  
-          <div>
-            <p>{contactName.contactName}</p>
-          </div>
-        ) : ( 
-          <p>No contact name</p>
-        );
-      },
-      flex: 1,
-      minWidth: 150, 
-    },
+  // const columns = [
+  //   {
+  //     field: 'actions',
+  //     headerName: '',
+  //     renderHeader: () => ( 
+  //       <strong></strong>
+  //     ),
+  //     flex: 1,
+  //     minWidth: 150,
+  //     renderCell: (params) => (
+  //       <Box>
+  //         {/* <IconButton
+  //           size="small"
+  //           variant="contained"
+  //           color="primary"
+  //         // onClick={() => handleEditClick(params.row)}
+  //         >
+  //           <Edit />
+  //         </IconButton> */}
+  //         <IconButton
+  //           size="small"
+  //           variant="contained"
+  //           color="secondary"
+  //           onClick={() => handleDelete(params.row.id)}
+  //         >
+  //           <Delete />
+  //         </IconButton>
+  //       </Box>
+  //     ),
+  //   },
+  //   { 
+  //     field: 'ticketNumber',   
+  //     headerName: 'Ticket Number', 
+  //     renderHeader: () => ( 
+  //       <strong>Ticket Number</strong>
+  //     ),
+  //     flex: 1,
+  //     minWidth: 150, 
+  //   },
+  //   { 
+  //     field: 'taskName',   
+  //     headerName: 'Task Name', 
+  //     renderHeader: () => ( 
+  //       <strong>Task Name</strong>
+  //     ),
+  //     renderCell: (params) => {
+  //       const taskName = params.row.taskName;
+  //       const taskNameHebrew = params.row.taskNameHebrew;
+  //       return taskName ? (
+  //         <div>
+  //           <p>{taskName} ({taskNameHebrew})</p>
+  //         </div>
+  //       ) : (
+  //         <p>No task name</p>
+  //       );
+  //     },
+  //     flex: 1,
+  //     minWidth: 150, 
+  //   },
+  //   { 
+  //     field: 'customer', 
+  //     headerName: 'Customer', 
+  //     renderHeader: () => ( 
+  //       <strong>Customer</strong>
+  //     ),
+  //     renderCell: (params) => {
+  //       const customer = params.row.customer;
+  //       return customer ? (
+  //         <div>
+  //           <p>{customer.customerName}</p>
+  //           <p>{customer.projectType}</p> 
+  //         </div>
+  //       ) : (
+  //         <p>N/A</p>
+  //       );
+  //     },
+  //     flex: 1,
+  //     minWidth: 150,
+  //   },
+  //   { 
+  //     field: 'contactName', 
+  //     headerName: 'Contact Name', 
+  //     renderHeader: () => ( 
+  //       <strong>Contact Name</strong>
+  //     ),
+  //     renderCell: (params) => {
+  //       const contactName = params.row.contactName;
+  //       return contactName ? (  
+  //         <div>
+  //           <p>{contactName.contactName}</p>
+  //         </div>
+  //       ) : ( 
+  //         <p>No contact name</p>
+  //       );
+  //     },
+  //     flex: 1,
+  //     minWidth: 150, 
+  //   },
     
-    { 
-      field: 'projectName', 
-      headerName: 'Project Name', 
-      renderHeader: () => ( 
-        <strong>Project Name</strong>
-      ),
-      flex: 1,
-      minWidth: 150, 
-    },
-    { 
-      field: 'subject', 
-      headerName: 'Subject', 
-      renderHeader: () => ( 
-        <strong>Subject</strong>
-      ),
-      flex: 1,
-      minWidth: 150,
-    }
-  ]
+  // ]
   
 
- //MUI DataGrid 
+  
   return (
     <div ref={dataGridRef}>
       <Box padding={1}>
@@ -481,7 +514,8 @@ const NewTask = () => {
             <Box width="100%" height="100%">
               <DataGrid
                 rows={taskList}
-                columns={taskList.length > 0 ? generateColumnsFromData(taskList) : columns} 
+                // columns={taskList.length > 0 ? generateColumnsFromData(taskList) : columns} 
+                columns={columns}
                 onRowClick={(rows) => handleRowClick(rows.row)} 
                 disableColumnMenu
                 disableRowSelectionOnClick
